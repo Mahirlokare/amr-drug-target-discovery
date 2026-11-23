@@ -35,8 +35,12 @@ class ProbabilityCalibrator:
         """Fits calibration curve on validation partition only."""
         scores_2d = np.asarray(raw_scores, dtype=np.float64).reshape(-1, 1)
         y_val_arr = np.asarray(y_val, dtype=np.int32)
-        self.model.fit(scores_2d, y_val_arr)
-        self.is_fitted = True
+        if len(np.unique(y_val_arr)) >= 2:
+            try:
+                self.model.fit(scores_2d, y_val_arr)
+                self.is_fitted = True
+            except Exception as e:
+                logger.warning(f"Calibration fit failed: {e}")
         return self
 
     def calibrate(self, raw_scores: np.ndarray) -> np.ndarray:

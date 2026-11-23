@@ -1,0 +1,11 @@
+[server]
+headless = true
+enableCORS = false
+enableXsrfProtection = false
+enableAgentApi = true
+
+[browser]
+gatherUsageStats = false
+
+[client]
+showErrorDetails = "full"
