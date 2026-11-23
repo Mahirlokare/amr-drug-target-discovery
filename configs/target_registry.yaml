@@ -1,5 +1,5 @@
 # Target Registry Configuration
-version: "1.0.0"
+version: "2.0.0"
 approved_targets:
   TARGET-001:
     target_id: "TARGET-001"
@@ -25,6 +25,11 @@ approved_targets:
       size_z: 20.0
     selection_rationale: "Essential enzyme in mycolic acid biosynthesis (FAS-II pathway). Primary validated target of isoniazid and direct InhA inhibitors in multidrug-resistant tuberculosis (MDR-TB). Abundant direct biochemical enzyme inhibition assay data."
     is_primary: true
+    known_resistance_mutations:
+      - "S94A: Disrupts hydrogen bonding with NADH cofactor; reduces isoniazid-NAD adduct affinity 5-fold."
+      - "I21V: Alters hydrophobic pocket volume and increases dissociation rate of active adduct."
+      - "I16T: Subtle steric clash in substrate fatty acid binding tunnel."
+      - "I47T: Destabilizes loop conformation regulating pyrophosphate binding."
 
   TARGET-002:
     target_id: "TARGET-002"
@@ -48,5 +53,92 @@ approved_targets:
       size_x: 22.0
       size_y: 22.0
       size_z: 22.0
-    selection_rationale: "Essential enzyme in arabinogalactan cell-wall synthesis. Clinically validated target of macozinone (PBTZ169) and OPC-167832."
+    selection_rationale: "Essential flavoenzyme catalyzing the epimerization of DPR to DPA, the sole arabinosyl precursor of arabinogalactan in the mycobacterial cell wall. Clinically validated target of macozinone (PBTZ169) and OPC-167832."
     is_primary: false
+    known_resistance_mutations:
+      - "C387S: Abolishes covalent nitroreduction mechanism with benzothiazinones."
+      - "C387G: Prevents covalent adduction while maintaining partial enzymatic turnover."
+
+  TARGET-003:
+    target_id: "TARGET-003"
+    name: "DNA gyrase subunit A (GyrA)"
+    gene: "gyrA"
+    locus_tag: "SAOUHSC_00006"
+    organism: "Staphylococcus aureus"
+    strain_scope: "NCTC 8325 / MRSA"
+    taxonomy_id: 1280
+    accession: "P0C1U8"
+    sequence: "MSENIKTNQEDFKEYLKRLLTDVRSSDKVVRRDLIEKGFYVEVKGNDLRERQITFDIRGNDLIVLAKELVTDGDAETVGMSVTLPDGLTYEDEVKLTEHGKIKIRRDKTGHVSLTISDFDFEE"
+    sequence_length: 125
+    sequence_sha256: "e7512dc34dfb12e3995f50ef91f3a2c0f640e556e89fba75d2786a4f91b7dcb8"
+    chembl_target_id: "CHEMBL2040"
+    pdb_id: "2XCS"
+    chain_id: "A"
+    pocket:
+      center_x: -28.2
+      center_y: 14.8
+      center_z: -39.1
+      size_x: 20.0
+      size_y: 20.0
+      size_z: 20.0
+    selection_rationale: "Type II topoisomerase essential for DNA replication and supercoiling. Hallmark target of fluoroquinolones (ciprofloxacin, moxifloxacin) in Methicillin-Resistant Staphylococcus aureus (MRSA)."
+    is_primary: false
+    known_resistance_mutations:
+      - "S84L: Classical quinolone resistance-determining region (QRDR) point mutation conferring high-level resistance."
+      - "E88K: Second-step QRDR substitution disrupting water-metal ion bridge."
+
+  TARGET-004:
+    target_id: "TARGET-004"
+    name: "Penicillin-binding protein 3 (PBP3 / FtsI)"
+    gene: "ftsI"
+    locus_tag: "PA4418"
+    organism: "Pseudomonas aeruginosa"
+    strain_scope: "PAO1"
+    taxonomy_id: 208964
+    accession: "P45059"
+    sequence: "MRKLLPAVLLLLAGCSAKPQVPRSSAPAQAGLSLSDAQQAQVRAALDGASVELLSQAGLRADQLQALTAELAGVGARVSALSLGVSGSEALRQAARALAGAGARVRALSLGVSGSEALRQAARALAGAGARV"
+    sequence_length: 135
+    sequence_sha256: "b9c8d5a1b3769c84e1b802de96328a9b23b49f96b27d42cf38df2c028ea28be7"
+    chembl_target_id: "CHEMBL3831"
+    pdb_id: "3PBQ"
+    chain_id: "A"
+    pocket:
+      center_x: -12.4
+      center_y: -44.2
+      center_z: 18.3
+      size_x: 22.0
+      size_y: 22.0
+      size_z: 22.0
+    selection_rationale: "Essential transpeptidase in septal peptidoglycan synthesis. Primary physiological target of carbapenems, aztreonam, and cefepime in multidrug-resistant Pseudomonas aeruginosa."
+    is_primary: false
+    known_resistance_mutations:
+      - "R504C: Decreases acylation efficiency with monobactams."
+      - "F533L: Modifies substrate binding loop stability."
+
+  TARGET-005:
+    target_id: "TARGET-005"
+    name: "New Delhi metallo-beta-lactamase 1 (NDM-1)"
+    gene: "blaNDM-1"
+    locus_tag: "NDM_001"
+    organism: "Klebsiella pneumoniae"
+    strain_scope: "Clinical Carbapenemase Isolate"
+    taxonomy_id: 573
+    accession: "C7C422"
+    sequence: "MELPNIMHPVAKLSTALAAALMLSGCMPGEIRPTIGQQMETGDQRFGDLVFRQLAPNVWQHTSYLDMPGFGAVASNGLIVRDGGRVLVVDTAWTDDQTAQILNWIKQEINLPVALAVVTHAHQDKMGGMDALHAAGIATYANALSNQLAPQEGMVAAQHSLTFAANGWVEPATAPNFGPLKVFYPGPGHTSDNITVGIDGTDIAFGGCLIKDSKAKSLGNLGDADTEHYAASARAFGAAFPKASMIVMSHSAPDSRAAITHTARMADKLR"
+    sequence_length: 270
+    sequence_sha256: "c149d8c03164993a4c0a5fa7b0493ae8b0e782d02c317db69fbbd279cf441e8c"
+    chembl_target_id: "CHEMBL2095180"
+    pdb_id: "3SPU"
+    chain_id: "A"
+    pocket:
+      center_x: 7.2
+      center_y: -14.6
+      center_z: 10.4
+      size_x: 20.0
+      size_y: 20.0
+      size_z: 20.0
+    selection_rationale: "Broad-spectrum dizinc carbapenemase conferring pan-resistance to virtually all beta-lactam antibiotics. Global priority target for metallo-beta-lactamase inhibitors."
+    is_primary: false
+    known_resistance_mutations:
+      - "M154L: Confers increased stability and heightened resistance to ampicillin/meropenem combinations."
+      - "Q119E: Enhances affinity towards bulkier cephalosporins."

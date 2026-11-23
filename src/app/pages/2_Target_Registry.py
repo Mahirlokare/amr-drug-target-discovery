@@ -12,7 +12,7 @@ if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
 import streamlit as st
-import yaml
+import streamlit.components.v1 as components
 
 from src.common.config import config_manager
 
@@ -39,11 +39,11 @@ target_choice = st.selectbox(
 
 target = registry[target_choice]
 
-col1, col2 = st.columns([2, 1])
+col1, col2 = st.columns([1.2, 0.8])
 
 with col1:
     st.subheader(f"{target['name']}")
-    st.markdown(f"**Biological Rationale & AMR Significance**:")
+    st.markdown("**Biological Rationale & AMR Significance**:")
     st.info(target["selection_rationale"])
 
     st.markdown("### Organism & Taxonomic Identity")
@@ -51,12 +51,20 @@ with col1:
     t1.write(f"**Organism**:\n*{target['organism']}*")
     t2.write(f"**Strain Scope**:\n`{target['strain_scope']}`")
     t3.write(f"**Taxonomy ID**:\n`{target['taxonomy_id']}`")
-    t4.write(f"**Gene Symbol**:\n`{target['gene']}` (`{target['locus_tag']}`)")
+    t4.write(f"**Gene Symbol**:\n`{target['gene']}` (`{target.get('locus_tag', '-')}`)")
 
     st.markdown("---")
     st.markdown("### Primary Amino Acid Sequence")
     st.code(target["sequence"], language="text")
     st.write(f"**Sequence Length**: {target['sequence_length']} aa | **SHA-256 Checksum**: `{target['sequence_sha256']}`")
+
+    # Known Resistance Mutations
+    mutations = target.get("known_resistance_mutations", [])
+    if mutations:
+        st.markdown("---")
+        st.markdown("### ⚠️ Documented Clinical Resistance Mutations")
+        for mut in mutations:
+            st.warning(mut)
 
 with col2:
     st.subheader("Structural & Assay Mappings")
@@ -65,12 +73,43 @@ with col2:
     st.write(f"**Primary PDB Structure**: [`{target['pdb_id']}`](https://www.rcsb.org/structure/{target['pdb_id']}) (Chain {target['chain_id']})")
 
     st.markdown("---")
-    st.subheader("Docking Pocket Definition")
+    st.subheader("Docking Grid Definition")
     pocket = target.get("pocket", {})
     st.write("**Pocket Center (Å)**:")
     st.code(f"X: {pocket.get('center_x')}, Y: {pocket.get('center_y')}, Z: {pocket.get('center_z')}")
-    st.write("**Search Grid Size (Å)**:")
+    st.write("**Search Box (Å)**:")
     st.code(f"{pocket.get('size_x')} x {pocket.get('size_y')} x {pocket.get('size_z')}")
 
-    if target_choice == "TARGET-001":
-        st.success("Co-crystallized cofactor: **NAD+** is retained in receptor binding cavity.")
+    # Interactive 3D WebGL Structure Viewer
+    st.markdown("---")
+    st.subheader(f"3D Structure: PDB {target['pdb_id']}")
+    pdb_id = target["pdb_id"]
+    viewer_html = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/3Dmol/2.0.4/3Dmol-min.js"></script>
+      <style>
+        body {{ margin: 0; padding: 0; background-color: #0F172A; }}
+        #viewport {{ width: 100%; height: 280px; position: relative; border-radius: 8px; overflow: hidden; }}
+      </style>
+    </head>
+    <body>
+      <div id="viewport"></div>
+      <script>
+        $(function() {{
+          let viewer = $3Dmol.createViewer($('#viewport'), {{ backgroundColor: '#0B0F19' }});
+          $3Dmol.download("pdb:{pdb_id}", viewer, {{}}, function() {{
+            viewer.setStyle({{}}, {{ cartoon: {{ color: 'spectrum' }} }});
+            viewer.setStyle({{ hetflag: true }}, {{ stick: {{ colorscheme: 'greenCarbon' }} }});
+            viewer.zoomTo();
+            viewer.render();
+            viewer.spin("y", 0.6);
+          }});
+        }});
+      </script>
+    </body>
+    </html>
+    """
+    components.html(viewer_html, height=290)
