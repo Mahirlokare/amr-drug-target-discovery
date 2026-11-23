@@ -1,8 +1,15 @@
 # Label Definition & Harmonisation Policy
-policy_version: "label-v1.0"
+policy_version: "label-v2.0"
 target_id: "TARGET-001"
 
 primary_endpoint: "IC50"
+supported_endpoints:
+  - "IC50"
+  - "Ki"
+  - "Kd"
+  - "EC50"
+  - "MIC"
+
 permitted_relations:
   - "="
   - "~"
@@ -13,21 +20,41 @@ units_conversion:
   factors:
     "nM": 1.0
     "uM": 1000.0
+    "µM": 1000.0
     "mM": 1000000.0
     "M": 1000000000.0
-    "ug.mL-1": null # excluded unless molar mass can resolve strictly
+    "ug.mL-1": null # converted conditionally via compound MW
+    "ug/mL": null
+    "mg/L": null
 
 classification:
-  # Active: IC50 <= 1000 nM (pIC50 >= 6.0)
+  # Enzymatic Endpoints: IC50, Ki, Kd
+  enzymatic:
+    active_max_nm: 1000.0
+    active_min_pic50: 6.0
+    inactive_min_nm: 10000.0
+    inactive_max_pic50: 5.0
+    quarantine_intermediate: true
+
+  # Cellular Functional Endpoint: EC50
+  cellular_ec50:
+    active_max_nm: 2000.0
+    active_min_pec50: 5.7
+    inactive_min_nm: 20000.0
+    inactive_max_pec50: 4.7
+    quarantine_intermediate: true
+
+  # Microbiological Whole-Cell Endpoint: MIC (ug/mL)
+  microbiological_mic:
+    active_max_ug_ml: 1.0     # Potent anti-tubercular MIC <= 1 ug/mL
+    inactive_min_ug_ml: 8.0   # Clinically resistant / inactive MIC > 8 ug/mL
+    quarantine_intermediate: true
+
+  # Fallback backward-compatible keys
   active_max_nm: 1000.0
   active_min_pic50: 6.0
-
-  # Inactive: IC50 > 10000 nM (pIC50 < 5.0)
   inactive_min_nm: 10000.0
   inactive_max_pic50: 5.0
-
-  # Intermediate / ambiguous: 1000 nM < IC50 <= 10000 nM
-  quarantine_intermediate: true
 
 censored_data_handling:
   # ">" measurements > 10000 nM are marked inactive

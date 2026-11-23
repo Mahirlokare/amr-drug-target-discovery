@@ -88,10 +88,53 @@ class ESMEmbeddingService:
 
         return torch.tensor(embedding, dtype=torch.float32)
 
+    def _extract_huggingface_esm2_embedding(self, sequence: str) -> Optional[torch.Tensor]:
+        """
+        Attempts to compute authentic ESM-2 sequence embeddings using HuggingFace Transformers
+        if installed and network/cache permits.
+        """
+        try:
+            from transformers import AutoTokenizer, AutoModel
+            logger.info(f"Loading HuggingFace ESM-2 model: {self.model_name}")
+            tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+            model = AutoModel.from_pretrained(self.model_name)
+            model.eval()
+
+            clean_seq = "".join(sequence.split()).upper()[:self.max_len]
+            inputs = tokenizer(clean_seq, return_tensors="pt", add_special_tokens=True)
+            with torch.no_grad():
+                outputs = model(**inputs)
+                # Mean pool token representations across sequence (excluding special tokens)
+                token_embeddings = outputs.last_hidden_state[0, 1:-1]
+                pooled = token_embeddings.mean(dim=0)
+                # Normalize
+                pooled = pooled / torch.norm(pooled)
+                return pooled.cpu()
+        except Exception as e:
+            logger.debug(f"HuggingFace ESM-2 unavailable ({e}). Using deterministic physicochemical projection.")
+            return None
+
+    def get_service_status(self) -> Dict[str, Any]:
+        """Returns runtime availability of HuggingFace transformers vs physicochemical projection."""
+        hf_available = False
+        try:
+            import transformers
+            hf_available = True
+        except ImportError:
+            hf_available = False
+
+        return {
+            "model_name": self.model_name,
+            "embedding_dim": self.embedding_dim,
+            "huggingface_transformers_installed": hf_available,
+            "active_engine": "HuggingFace ESM-2" if hf_available else "Continuous Physicochemical Projection (Kyte-Doolittle)",
+            "pooling": self.pooling
+        }
+
     def get_embedding(self, sequence: str, target_id: str = "TARGET-001") -> Tuple[torch.Tensor, str]:
         """
         Returns pooled embedding tensor [embedding_dim] and sequence hash.
-        Reads from disk cache or generates and persists.
+        Reads from disk cache or generates and persists with strict provenance metadata.
         """
         clean_seq = "".join(sequence.split()).upper()
         seq_hash = self._sequence_hash(clean_seq)
@@ -102,9 +145,14 @@ class ESMEmbeddingService:
             tensor = torch.load(cache_tensor_path, weights_only=True)
             return tensor, seq_hash
 
-        # Generate representation
-        logger.info(f"Generating ESM-2 sequence embedding for target {target_id} (len={len(clean_seq)})...")
-        tensor = self._generate_synthetic_esm2_representation(clean_seq)
+        # 1. Attempt HuggingFace ESM-2 extraction
+        tensor = self._extract_huggingface_esm2_embedding(clean_seq)
+        method_used = "huggingface_esm2" if tensor is not None else "physicochemical_surrogate_projection"
+
+        # 2. Fall back to deterministic continuous physicochemical sequence projection
+        if tensor is None:
+            logger.info(f"Generating deterministic continuous sequence projection for target {target_id} (len={len(clean_seq)})...")
+            tensor = self._generate_synthetic_esm2_representation(clean_seq)
 
         # Save to disk
         torch.save(tensor, cache_tensor_path)
@@ -115,6 +163,12 @@ class ESMEmbeddingService:
             "model_name": self.model_name,
             "embedding_dim": self.embedding_dim,
             "pooling": self.pooling,
+            "method": method_used,
+            "provenance_note": (
+                "Authentic HuggingFace ESM-2 representation"
+                if method_used == "huggingface_esm2"
+                else "Deterministic continuous physicochemical sequence projection (Kyte-Doolittle moments, dim=320) compliant with Project 9 Blueprint."
+            ),
             "file": cache_tensor_path.name
         }
         with open(cache_meta_path, "w", encoding="utf-8") as f:

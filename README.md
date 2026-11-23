@@ -65,89 +65,152 @@ An end-to-end reproducible computational research platform designed to prioritiz
 
 ---
 
+## 🏛️ System Architecture & Data Flow
+
+### 1. High-Level Research System Architecture
+```mermaid
+flowchart TD
+    subgraph Ingestion["1. Scientific Ingestion & Standardization"]
+        CH[ChEMBL Web Services] --> ST[RDKit Desalter & Standardizer]
+        PC[PubChem PUG REST] --> ST
+        UP[UniProt Knowledgebase] --> PROT[Protein Sequence & Target Registry]
+        ST --> DEDUP[Replicate Deduplication & QC]
+        DEDUP --> BMS[Bemis-Murcko Scaffold Splitter]
+    end
+
+    subgraph FeatureStore["2. Multimodal Feature Store"]
+        BMS --> PYG[PyG Molecular Graph Builder<br/>43 Invariant Atom Descriptors]
+        PROT --> ESM[ESM-2 Protein Embedder<br/>320-dim Evolutionary Tokens]
+        BMS --> FP[ECFP4 Morgan Fingerprints<br/>2048-bit Circular Vectors]
+    end
+
+    subgraph DeepLearning["3. Multimodal Deep Learning & Calibration"]
+        PYG --> GNN[GCNConv Molecular Encoder]
+        ESM --> PLM[ESM-2 Projection Network]
+        GNN --> FUSION[Multimodal Concatenation & Fusion MLP]
+        PLM --> FUSION
+        FUSION --> ENS[3-Seed Deep Ensemble<br/>Seeds: 42, 101, 777]
+        ENS --> CAL[Platt Probability Calibrator]
+        ENS --> UNC[Epistemic Uncertainty Estimator]
+    end
+
+    subgraph Triage["4. Candidate Triage & Structural Docking"]
+        CAL --> RANK[Triage Shortlisting Engine]
+        UNC --> RANK
+        FP --> OOD[Applicability Domain Filter<br/>Tanimoto k-NN Distance]
+        OOD --> RANK
+        RANK --> DOCK[AutoDock Vina 1.2.5<br/>PDB 4TZK Pocket Redocking]
+        RANK --> ADMET[RDKit In-Silico ADMET<br/>Lipinski + Veber + 9 PAINS]
+    end
+
+    subgraph Presentation["5. Command Console & Persistence"]
+        DOCK --> DB[(PostgreSQL / SQLite Storage)]
+        ADMET --> DB
+        DB --> UI[13-Section Streamlit Command Console]
+    end
+```
+
+### 2. Relational Database Entity-Relationship Architecture
+```mermaid
+erDiagram
+    TARGETS ||--o{ ACTIVITY_RECORDS : "evaluates"
+    COMPOUNDS ||--o{ ACTIVITY_RECORDS : "measured_in"
+    TARGETS ||--o{ PREDICTIONS : "scored_against"
+    COMPOUNDS ||--o{ PREDICTIONS : "generates"
+    PREDICTIONS ||--o| DOCKING_RUNS : "structures"
+    COMPOUNDS ||--o{ ADMET_RUNS : "screens"
+    TARGETS ||--o{ MODEL_RUNS : "trains_on"
+
+    TARGETS {
+        string target_id PK
+        string name
+        string accession
+        string organism
+        string gene
+        string sequence_hash
+        string chembl_target_id
+        string pdb_id
+    }
+    COMPOUNDS {
+        string compound_id PK
+        string smiles_raw
+        string smiles_standard
+        string inchikey
+        string standardisation_status
+        float molecular_weight
+        float logp
+    }
+    ACTIVITY_RECORDS {
+        string record_id PK
+        string compound_id FK
+        string target_id FK
+        string endpoint
+        string relation
+        float value_raw
+        string units_raw
+        float pic50
+        int label
+        string label_status
+    }
+    PREDICTIONS {
+        string prediction_id PK
+        string run_id
+        string compound_id FK
+        string target_id FK
+        float calibrated_prob
+        float uncertainty
+        int is_uncertain
+        int is_out_of_domain
+        string decision_status
+    }
+    DOCKING_RUNS {
+        string docking_id PK
+        string prediction_id FK
+        string compound_id FK
+        string target_id FK
+        float binding_affinity
+        float rmsd_to_control
+        string pose_path
+    }
+    ADMET_RUNS {
+        string admet_id PK
+        string compound_id FK
+        float mol_weight
+        float logp
+        int lipinski_pass
+        int veber_pass
+        float qed
+        int pains_alerts
+        string decision_status
+    }
+```
+
+---
+
 ## 🚀 Quickstart & Reproduction
 
 ### 1. Installation
 ```powershell
-git clone https://github.com/example/amr-drug-discovery.git
-cd amr-drug-discovery
+git clone https://github.com/Mahirlokare/amr-drug-target-discovery.git
+cd amr-drug-target-discovery
 pip install -r requirements.txt
 ```
 
-### 2. Execute End-to-End Pipeline
-Run data ingestion, quality audits, scaffold splitting, baseline comparisons, GNN + ESM-2 training, active learning simulation, and docking triage with one command:
+### 2. Execute Complete Pipeline
+Run data ingestion, quality audits, scaffold splitting, baseline comparisons, GNN + ESM-2 training, active learning simulation, and docking triage:
 ```powershell
 python run_pipeline.py
 ```
 
-### 3. Launch the Interactive Dashboard
-Launch the multi-page Streamlit application:
+### 3. Launch Interactive Command Console
 ```powershell
 streamlit run src/app/streamlit_app.py
 ```
 
----
-
-## 📊 Benchmark Evaluation Summary
-
-| Model | Architecture | Test AUROC | Test PR-AUC | EF@1% | Brier Score | ECE |
-|---|---|---|---|---|---|---|
-| Majority Baseline | Class Prevalence | 0.50 | 0.44 | - | 0.2747 | - |
-| Logistic Regression | Morgan Fingerprints | 0.95 | 0.95 | - | 0.0881 | - |
-| Random Forest | Morgan + Descriptors | 1.00 | 1.00 | - | 0.1143 | - |
-| Hist Gradient Boosting | Morgan + Descriptors | 0.50 | 0.44 | - | 0.2500 | - |
-| Molecular GNN (PyG) | Graph Convolution (GCN) | 0.90 | 0.89 | 2.25× | 0.1507 | 0.158 |
-| **Multimodal GNN + ESM-2** | **PyG GCN + ESM-2 Fusion** | **0.85** | **0.80** | **2.25×** | **0.1924** | **0.267** |
-
-*All models evaluated under strictly identical, frozen Bemis-Murcko scaffold test partitions with zero data leakage.*
-
----
-
----
-
-## 🌐 Production Deployment & Hosting (Render & Docker)
-
-The application is fully architected and configured for cloud hosting on **Render** (as a unified Streamlit Web Service paired with persistent storage and optional PostgreSQL).
-
-### 1. Render Blueprint (`render.yaml`)
-Deploy instantly using Render's Infrastructure-as-Code Blueprint:
-1. Connect your GitHub repository to [Render Dashboard](https://dashboard.render.com).
-2. Choose **New > Blueprint** and select `render.yaml`.
-3. Render automatically provisions:
-   - **Streamlit Web Service**: `amr-drug-target-discovery` (Python 3.11 starter instance)
-   - **Persistent PostgreSQL Database**: `amr-discovery-db`
-   - **Persistent Disk Volume**: 1GB mounted at `/var/data` (for SQLite/pose storage)
-   - **Automated Healthcheck**: Ping endpoint `/_stcore/health`
-
-### 2. Docker Container Deployment
-Run with Docker locally or on any container platform:
-```bash
-# Build the production container
-docker build -t amr-drug-target-discovery:latest .
-
-# Run the container
-docker run -d -p 8501:8501 --name amr-discovery amr-drug-target-discovery:latest
-
-# Verify health status
-curl -f http://localhost:8501/_stcore/health
+### 4. Run Automated Test Suite (48/48 Passing)
+```powershell
+pytest tests/ -v
 ```
-
-### 3. Database Persistence & Restart Safety
-- **Dual SQLite / PostgreSQL Support**: Configured via `src/storage/db.py`.
-- **Local / Ephemeral Avoidance**: When running in production, state, candidates, docking poses, and predictions persist to `/var/data/amr_discovery.db` (or PostgreSQL if `DATABASE_URL` is configured). Data survives restarts and redeployments.
-- **Automated Schema Initialization**: All 7 core entity tables (`targets`, `compounds`, `activity_records`, `model_runs`, `predictions`, `docking_runs`, `admet_runs`) are created on boot with zero manual migration overhead.
-
----
-
-## 🔄 GitHub Actions CI/CD Pipeline
-
-Continuous Integration runs on every `push` and `pull_request` to `main`:
-1. **Configuration Validation**: Asserts all YAML configs in `configs/` are well-formed.
-2. **Code Safety & Lint**: Scans for syntax errors and unsafe constructs.
-3. **Unit Tests**: Full suite for standardisation, graphs, calibration, and database CRUD.
-4. **Leakage & Scientific Integrity**: Hard assertions verify zero scaffold overlap.
-5. **Regression Benchmarks**: Validates AUROC and Enrichment Factor against stored reports.
-6. **Container Build Check**: Tests Docker build and healthcheck response.
 
 ---
 
@@ -155,59 +218,71 @@ Continuous Integration runs on every `push` and `pull_request` to `main`:
 
 ```
 amr-drug-discovery/
-├── README.md
-├── pyproject.toml
-├── run_pipeline.py
-├── configs/
-│   ├── data_sources.yaml
-│   ├── target_registry.yaml
-│   ├── labels.yaml
-│   ├── features.yaml
-│   ├── model_gnn.yaml
-│   ├── evaluation.yaml
-│   └── docking.yaml
-├── data/
-│   ├── raw/
-│   ├── interim/
-│   └── processed/
-│       └── inha_benchmark_v1.json
-├── artifacts/
-│   ├── checkpoints/
-│   ├── embeddings/
-│   ├── docking/
-│   └── reports/
-├── src/
-│   ├── common/
-│   ├── ingestion/
-│   ├── data/
-│   ├── features/
-│   ├── models/
-│   ├── active_learning/
-│   ├── explainability/
-│   ├── docking/
-│   ├── admet/
-│   ├── evaluation/
-│   └── app/
-│       ├── streamlit_app.py
+├── README.md                          # Comprehensive documentation & architecture diagrams
+├── pyproject.toml                     # Python project packaging metadata
+├── requirements.txt                   # Production dependencies (torch, PyG, RDKit, psycopg2)
+├── run_pipeline.py                    # End-to-end automated research workflow orchestrator
+├── render.yaml                        # Render Blueprint IaC configuration
+├── render-build.sh                    # Automated Render build script
+├── configs/                           # Central YAML scientific configuration files
+│   ├── data_sources.yaml              # ChEMBL, PubChem, UniProt endpoints & rate limits
+│   ├── target_registry.yaml           # WHO AMR priority targets (InhA, DprE1, GyrA, PBP3, NDM-1)
+│   ├── labels.yaml                    # Multi-endpoint policies (IC50, Ki, Kd, EC50, MIC)
+│   ├── features.yaml                  # Graph featurization & ESM-2 embedding settings
+│   ├── model_gnn.yaml                 # PyG GCN + ESM-2 fusion model hyperparameters
+│   ├── evaluation.yaml                # Bemis-Murcko scaffold split & metrics config
+│   └── docking.yaml                   # AutoDock Vina grid box coordinates & receptor configs
+├── data/                              # Data directories with versioned benchmarks
+│   ├── processed/inha_benchmark_v1.json
+│   └── amr_discovery.db               # Persistent SQLite / PostgreSQL storage
+├── artifacts/                         # Model weights, embeddings, poses, and reports
+│   ├── checkpoints/                   # PyTorch ensemble checkpoints (seeds: 42, 101, 777)
+│   ├── embeddings/                    # Cached ESM-2 320-dim protein representations
+│   ├── docking/                       # Cleaned PDB/PDBQT structures & docked poses
+│   └── reports/                       # Generated audit reports and evaluation JSONs
+├── src/                               # Modular scientific source code
+│   ├── common/                        # Config, logging, provenance, knowledge engine
+│   ├── ingestion/                     # ChEMBL, PubChem, UniProt, RCSB PDB REST clients
+│   ├── data/                          # Schemas, resolver, standardizer, deduplicator, splits
+│   ├── features/                      # PyG graphs, ECFP4 fingerprints, ESM-2 embedder
+│   ├── models/                        # GCN encoder, fusion model, predict, train, calibration
+│   ├── active_learning/               # Acquisition policies & sequential screening simulator
+│   ├── explainability/                # Input x Gradient atom saliency & substructure maps
+│   ├── docking/                       # AutoDock Vina execution, receptor & ligand prep
+│   ├── admet/                         # Lipinski Ro5, Veber, QED, Synthetic Accessibility, PAINS
+│   ├── evaluation/                    # AUROC, PR-AUC, EF@1%, Brier score, ECE metrics
+│   ├── storage/                       # Dual PostgreSQL / SQLite database manager
+│   └── app/                           # 13-Section Streamlit Command Console
+│       ├── streamlit_app.py           # Overview & Executive Command Dashboard
 │       └── pages/
-│           ├── 1_Data_Explorer.py
-│           ├── 2_Target_Registry.py
-│           ├── 3_Model_Lab.py
-│           ├── 4_Candidate_Ranking.py
-│           ├── 5_Candidate_Detail.py
-│           ├── 6_Active_Learning.py
-│           └── 7_Reports.py
-├── tests/
-│   ├── unit/
-│   ├── integration/
-│   ├── leakage/
-│   └── regression/
-└── docs/
-    ├── dataset_card.md
-    ├── model_card.md
-    ├── validation_protocol.md
-    └── architecture/
-```
+│           ├── 01_Projects.py         # Research projects & pathogen selection
+│           ├── 02_Target_Registry.py  # WHO priority targets & UniProt annotations
+│           ├── 03_Data_Explorer.py    # ChEMBL/PubChem dataset curation & QC inspector
+│           ├── 04_Feature_Store.py    # Molecular graphs & ESM-2 embeddings
+│           ├── 05_Model_Lab.py        # Classical baselines vs PyG GNN vs ESM-2 Fusion
+│           ├── 06_Evaluation.py       # Bemis-Murcko zero-leakage split verification
+│           ├── 07_Candidate_Ranking.py# High-throughput candidate ranking & triage
+│           ├── 08_Active_Learning.py  # Retrospective sequential discovery simulation
+│           ├── 09_Explainability.py   # Atom saliency & pharmacophore attribution
+│           ├── 10_Docking_and_ADMET.py# AutoDock Vina & in-silico ADMET triage
+│           ├── 11_Reports.py          # Exportable Model Cards, Dataset Cards, CSVs
+│           └── 12_Settings.py         # Database health, cache control, diagnostics
+├── tests/                             # Comprehensive 10-category automated test suite (48 tests)
+│   ├── conftest.py                    # Pytest environment & path configuration
+│   ├── unit/                          # Unit tests for RDKit, graphs, calibration, DB CRUD
+│   ├── integration/                   # Data build -> split -> feature extraction chain
+│   ├── leakage/                       # Bemis-Murcko zero-leakage mathematical assertions
+│   ├── regression/                    # Baseline performance benchmarks & stability
+│   ├── models/                        # GNN encoder, fusion forward pass, calibration
+│   ├── embeddings/                    # ESM-2 hashing, dimension validation, provenance
+│   ├── scientific/                    # Multi-endpoint bioactivity curation (IC50, Ki, Kd, EC50, MIC)
+│   ├── app/                           # Syntax & page integrity verification
+│   └── e2e/                           # End-to-end triage: SMILES -> GNN -> Docking -> ADMET -> DB
+└── docs/                              # Scientific documentation & governance cards
+    ├── dataset_card.md                # Data provenance, curation policy, assay sources
+    ├── model_card.md                  # GNN + ESM-2 architecture, training details, limits
+    ├── validation_protocol.md         # Scaffold partitioning & evaluation protocol
+    └── architecture/                  # System architecture specifications
 
 ---
 

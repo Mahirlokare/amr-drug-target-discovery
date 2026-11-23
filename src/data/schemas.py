@@ -32,11 +32,11 @@ class Target:
     name: str
     accession: str
     organism: str
-    strain_scope: str
     gene: str
     sequence: str
     sequence_hash: str
-    taxonomy_id: int
+    strain_scope: str = "H37Rv"
+    taxonomy_id: int = 83332
     chembl_target_id: Optional[str] = None
     pdb_id: Optional[str] = None
     selection_rationale: Optional[str] = None
@@ -118,6 +118,14 @@ class Prediction:
     nearest_train_similarity: float
     substructure_attribution: Optional[Dict[str, float]] = None
     decision_status: str = "NEEDS_REVIEW"
+
+    @property
+    def calibrated_prob(self) -> float:
+        return self.calibrated_probability
+
+    @property
+    def model_run_id(self) -> str:
+        return self.run_id
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)

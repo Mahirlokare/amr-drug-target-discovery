@@ -74,8 +74,32 @@ class DatabaseManager:
         conn.row_factory = sqlite3.Row
         return conn
 
+    def _query(self, cursor, sql: str, params: Tuple = ()) -> None:
+        """Executes query mapping parameter placeholders to PostgreSQL format if active."""
+        if self.is_postgres:
+            sql = sql.replace("?", "%s")
+        cursor.execute(sql, params)
+
+    def _upsert(self, cursor, table: str, pkey: str, data: Dict[str, Any]) -> None:
+        """Dialect-agnostic upsert for SQLite and PostgreSQL."""
+        cols = list(data.keys())
+        vals = tuple(data.values())
+
+        if self.is_postgres:
+            cols_str = ", ".join(cols)
+            placeholders = ", ".join(["%s"] * len(cols))
+            update_clauses = [f"{c} = EXCLUDED.{c}" for c in cols if c != pkey]
+            update_str = ", ".join(update_clauses) if update_clauses else f"{pkey} = EXCLUDED.{pkey}"
+            sql = f"INSERT INTO {table} ({cols_str}) VALUES ({placeholders}) ON CONFLICT ({pkey}) DO UPDATE SET {update_str};"
+            cursor.execute(sql, vals)
+        else:
+            cols_str = ", ".join(cols)
+            placeholders = ", ".join(["?"] * len(cols))
+            sql = f"INSERT OR REPLACE INTO {table} ({cols_str}) VALUES ({placeholders});"
+            cursor.execute(sql, vals)
+
     def init_schema(self) -> None:
-        """Initializes tables for Target, Compound, Activity, ModelRun, Prediction, Docking, ADMET."""
+        """Initializes tables for Target, Compound, Activity, ModelRun, Prediction, Docking, ADMET with indices."""
         conn = self.get_connection()
         try:
             with conn:
@@ -190,7 +214,22 @@ class DatabaseManager:
                     created_at TEXT NOT NULL
                 );
                 """)
-            logger.info("Database schema verification and initialization complete.")
+
+                # Create indices for query performance
+                indices = [
+                    "CREATE INDEX IF NOT EXISTS idx_compounds_inchikey ON compounds(inchikey);",
+                    "CREATE INDEX IF NOT EXISTS idx_activity_compound ON activity_records(compound_id);",
+                    "CREATE INDEX IF NOT EXISTS idx_activity_target ON activity_records(target_id);",
+                    "CREATE INDEX IF NOT EXISTS idx_activity_endpoint ON activity_records(endpoint);",
+                    "CREATE INDEX IF NOT EXISTS idx_predictions_target ON predictions(target_id);",
+                    "CREATE INDEX IF NOT EXISTS idx_predictions_prob ON predictions(calibrated_prob);",
+                    "CREATE INDEX IF NOT EXISTS idx_docking_target ON docking_runs(target_id);",
+                    "CREATE INDEX IF NOT EXISTS idx_admet_compound ON admet_runs(compound_id);"
+                ]
+                for idx_stmt in indices:
+                    cursor.execute(idx_stmt)
+
+            logger.info("Database schema verification and initialization complete with indexed relations.")
         finally:
             conn.close()
 
@@ -239,25 +278,19 @@ class DatabaseManager:
             with conn:
                 cursor = conn.cursor()
                 now = datetime.now(timezone.utc).isoformat()
-                cursor.execute(
-                    """
-                    INSERT OR REPLACE INTO targets 
-                    (target_id, name, accession, organism, gene, sequence_hash, chembl_target_id, pdb_id, selection_rationale, created_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    """,
-                    (
-                        target_data["target_id"],
-                        target_data["name"],
-                        target_data["accession"],
-                        target_data["organism"],
-                        target_data["gene"],
-                        target_data["sequence_hash"],
-                        target_data.get("chembl_target_id"),
-                        target_data.get("pdb_id"),
-                        target_data.get("selection_rationale"),
-                        now,
-                    ),
-                )
+                record = {
+                    "target_id": target_data["target_id"],
+                    "name": target_data["name"],
+                    "accession": target_data["accession"],
+                    "organism": target_data["organism"],
+                    "gene": target_data["gene"],
+                    "sequence_hash": target_data["sequence_hash"],
+                    "chembl_target_id": target_data.get("chembl_target_id"),
+                    "pdb_id": target_data.get("pdb_id"),
+                    "selection_rationale": target_data.get("selection_rationale"),
+                    "created_at": now,
+                }
+                self._upsert(cursor, "targets", "target_id", record)
         finally:
             conn.close()
 
@@ -265,7 +298,7 @@ class DatabaseManager:
         conn = self.get_connection()
         try:
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM targets ORDER BY target_id ASC;")
+            self._query(cursor, "SELECT * FROM targets ORDER BY target_id ASC;")
             rows = cursor.fetchall()
             return [dict(r) for r in rows]
         finally:
@@ -278,26 +311,20 @@ class DatabaseManager:
             with conn:
                 cursor = conn.cursor()
                 now = datetime.now(timezone.utc).isoformat()
-                cursor.execute(
-                    """
-                    INSERT OR REPLACE INTO predictions
-                    (prediction_id, run_id, compound_id, target_id, smiles, calibrated_prob, uncertainty, is_uncertain, is_out_of_domain, decision_status, created_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    """,
-                    (
-                        pred["prediction_id"],
-                        pred["run_id"],
-                        pred["compound_id"],
-                        pred["target_id"],
-                        pred["smiles"],
-                        float(pred["calibrated_prob"]),
-                        float(pred["uncertainty"]),
-                        int(pred.get("is_uncertain", False)),
-                        int(pred.get("is_out_of_domain", False)),
-                        pred.get("decision_status", "NEEDS_REVIEW"),
-                        now,
-                    ),
-                )
+                record = {
+                    "prediction_id": pred["prediction_id"],
+                    "run_id": pred["run_id"],
+                    "compound_id": pred["compound_id"],
+                    "target_id": pred["target_id"],
+                    "smiles": pred["smiles"],
+                    "calibrated_prob": float(pred["calibrated_prob"]),
+                    "uncertainty": float(pred["uncertainty"]),
+                    "is_uncertain": int(pred.get("is_uncertain", False)),
+                    "is_out_of_domain": int(pred.get("is_out_of_domain", False)),
+                    "decision_status": pred.get("decision_status", "NEEDS_REVIEW"),
+                    "created_at": now,
+                }
+                self._upsert(cursor, "predictions", "prediction_id", record)
         finally:
             conn.close()
 
@@ -308,12 +335,14 @@ class DatabaseManager:
         try:
             cursor = conn.cursor()
             if target_id:
-                cursor.execute(
+                self._query(
+                    cursor,
                     "SELECT * FROM predictions WHERE target_id = ? ORDER BY calibrated_prob DESC LIMIT ?;",
                     (target_id, limit),
                 )
             else:
-                cursor.execute(
+                self._query(
+                    cursor,
                     "SELECT * FROM predictions ORDER BY calibrated_prob DESC LIMIT ?;",
                     (limit,),
                 )
@@ -329,24 +358,18 @@ class DatabaseManager:
             with conn:
                 cursor = conn.cursor()
                 now = datetime.now(timezone.utc).isoformat()
-                cursor.execute(
-                    """
-                    INSERT OR REPLACE INTO docking_runs
-                    (docking_id, prediction_id, compound_id, target_id, receptor_pdb, binding_affinity, rmsd_to_control, pose_path, created_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    """,
-                    (
-                        docking_data["docking_id"],
-                        docking_data.get("prediction_id"),
-                        docking_data["compound_id"],
-                        docking_data["target_id"],
-                        docking_data["receptor_pdb"],
-                        float(docking_data["binding_affinity"]),
-                        docking_data.get("rmsd_to_control"),
-                        docking_data.get("pose_path"),
-                        now,
-                    ),
-                )
+                record = {
+                    "docking_id": docking_data["docking_id"],
+                    "prediction_id": docking_data.get("prediction_id"),
+                    "compound_id": docking_data["compound_id"],
+                    "target_id": docking_data["target_id"],
+                    "receptor_pdb": docking_data["receptor_pdb"],
+                    "binding_affinity": float(docking_data["binding_affinity"]),
+                    "rmsd_to_control": docking_data.get("rmsd_to_control"),
+                    "pose_path": docking_data.get("pose_path"),
+                    "created_at": now,
+                }
+                self._upsert(cursor, "docking_runs", "docking_id", record)
         finally:
             conn.close()
 
@@ -354,7 +377,7 @@ class DatabaseManager:
         conn = self.get_connection()
         try:
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM docking_runs ORDER BY binding_affinity ASC;")
+            self._query(cursor, "SELECT * FROM docking_runs ORDER BY binding_affinity ASC;")
             rows = cursor.fetchall()
             return [dict(r) for r in rows]
         finally:
@@ -367,29 +390,23 @@ class DatabaseManager:
             with conn:
                 cursor = conn.cursor()
                 now = datetime.now(timezone.utc).isoformat()
-                cursor.execute(
-                    """
-                    INSERT OR REPLACE INTO admet_runs
-                    (admet_id, compound_id, mol_weight, logp, hbd, hba, tpsa, rotatable_bonds, lipinski_pass, veber_pass, qed, pains_alerts, decision_status, created_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    """,
-                    (
-                        admet_data["admet_id"],
-                        admet_data["compound_id"],
-                        admet_data.get("mol_weight"),
-                        admet_data.get("logp"),
-                        admet_data.get("hbd"),
-                        admet_data.get("hba"),
-                        admet_data.get("tpsa"),
-                        admet_data.get("rotatable_bonds"),
-                        int(admet_data.get("lipinski_pass", 1)),
-                        int(admet_data.get("veber_pass", 1)),
-                        admet_data.get("qed"),
-                        int(admet_data.get("pains_alerts", 0)),
-                        admet_data.get("decision_status", "PRIORITISED"),
-                        now,
-                    ),
-                )
+                record = {
+                    "admet_id": admet_data["admet_id"],
+                    "compound_id": admet_data["compound_id"],
+                    "mol_weight": admet_data.get("mol_weight"),
+                    "logp": admet_data.get("logp"),
+                    "hbd": admet_data.get("hbd"),
+                    "hba": admet_data.get("hba"),
+                    "tpsa": admet_data.get("tpsa"),
+                    "rotatable_bonds": admet_data.get("rotatable_bonds"),
+                    "lipinski_pass": int(admet_data.get("lipinski_pass", 1)),
+                    "veber_pass": int(admet_data.get("veber_pass", 1)),
+                    "qed": admet_data.get("qed"),
+                    "pains_alerts": int(admet_data.get("pains_alerts", 0)),
+                    "decision_status": admet_data.get("decision_status", "PRIORITISED"),
+                    "created_at": now,
+                }
+                self._upsert(cursor, "admet_runs", "admet_id", record)
         finally:
             conn.close()
 
