@@ -103,9 +103,19 @@ with d_col:
             grid_box=grid_box,
             output_pdbqt=out_dir / "inspect_pose.pdbqt"
         )
-        st.metric("Predicted Affinity", f"{affinity:.2f} kcal/mol", help="More negative indicates stronger binding")
+        st.markdown(f"""
+        <div style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 8px; padding: 12px; margin-bottom: 8px;">
+            <div style="font-size: 0.8rem; color: #94A3B8; text-transform: uppercase;">Predicted Affinity</div>
+            <div style="font-size: 1.4rem; font-weight: 700; color: #38BDF8;">{affinity:.2f} kcal/mol</div>
+        </div>
+        """, unsafe_allow_html=True)
         if rmsd:
-            st.metric("Control Redock RMSD", f"{rmsd:.2f} Å", help="Validation threshold: < 2.0 Å")
+            st.markdown(f"""
+            <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 8px; padding: 12px; margin-bottom: 8px;">
+                <div style="font-size: 0.8rem; color: #94A3B8; text-transform: uppercase;">Control Redock RMSD</div>
+                <div style="font-size: 1.4rem; font-weight: 700; color: #34D399;">{rmsd:.2f} Å</div>
+            </div>
+            """, unsafe_allow_html=True)
         st.caption("Docking score is reported as a distinct secondary structural filter, not merged with model probability.")
 
 with a_col:
@@ -114,9 +124,27 @@ with a_col:
     run = admet.evaluate_candidate(smiles, "INSPECT_CAND", "PRED-001")
 
     p1, p2, p3 = st.columns(3)
-    p1.metric("Molecular Weight", f"{run.mw} g/mol")
-    p2.metric("LogP", f"{run.logp}")
-    p3.metric("QED Drug-likeness", f"{run.qed_score}")
+    with p1:
+        st.markdown(f"""
+        <div style="background: rgba(100, 116, 139, 0.1); border-radius: 8px; padding: 10px; text-align: center;">
+            <div style="font-size: 0.75rem; color: #94A3B8;">Mol Weight</div>
+            <div style="font-size: 1.1rem; font-weight: 700; color: #F1F5F9;">{run.mw:.1f}</div>
+        </div>
+        """, unsafe_allow_html=True)
+    with p2:
+        st.markdown(f"""
+        <div style="background: rgba(100, 116, 139, 0.1); border-radius: 8px; padding: 10px; text-align: center;">
+            <div style="font-size: 0.75rem; color: #94A3B8;">LogP</div>
+            <div style="font-size: 1.1rem; font-weight: 700; color: #F1F5F9;">{run.logp:.2f}</div>
+        </div>
+        """, unsafe_allow_html=True)
+    with p3:
+        st.markdown(f"""
+        <div style="background: rgba(100, 116, 139, 0.1); border-radius: 8px; padding: 10px; text-align: center;">
+            <div style="font-size: 0.75rem; color: #94A3B8;">QED</div>
+            <div style="font-size: 1.1rem; font-weight: 700; color: #F1F5F9;">{run.qed_score:.2f}</div>
+        </div>
+        """, unsafe_allow_html=True)
 
     st.write(f"**Lipinski Rule of 5**: {'✅ Passed' if run.lipinski_pass else '❌ Failed'}")
     st.write(f"**Veber Oral Bioavailability**: {'✅ Passed' if run.veber_pass else '❌ Failed'}")

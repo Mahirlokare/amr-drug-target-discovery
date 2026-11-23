@@ -88,20 +88,44 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Project Status & Current Pinned Target
+# Project Status & Current Pinned Target (Pure HTML Cards to prevent dynamic chunk fetch errors)
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
-    st.metric(label="Primary Target", value="InhA (Rv1484)", help="Mycobacterium tuberculosis H37Rv")
+    st.markdown("""
+    <div style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 8px; padding: 14px; text-align: center;">
+        <div style="font-size: 0.8rem; color: #94A3B8; font-weight: 600; text-transform: uppercase;">Primary Target</div>
+        <div style="font-size: 1.4rem; font-weight: 700; color: #38BDF8; margin: 4px 0;">InhA (Rv1484)</div>
+        <div style="font-size: 0.75rem; color: #64748B;">M. tuberculosis H37Rv</div>
+    </div>
+    """, unsafe_allow_html=True)
 
 with col2:
-    st.metric(label="Validated Dataset", value="54 Compounds", help="Curated direct IC50 measurements")
+    st.markdown("""
+    <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 8px; padding: 14px; text-align: center;">
+        <div style="font-size: 0.8rem; color: #94A3B8; font-weight: 600; text-transform: uppercase;">Validated Dataset</div>
+        <div style="font-size: 1.4rem; font-weight: 700; color: #34D399; margin: 4px 0;">54 Compounds</div>
+        <div style="font-size: 0.75rem; color: #64748B;">Curated direct IC50 records</div>
+    </div>
+    """, unsafe_allow_html=True)
 
 with col3:
-    st.metric(label="Validation Split", value="Bemis-Murcko", help="Zero train/test scaffold overlap")
+    st.markdown("""
+    <div style="background: rgba(168, 85, 247, 0.08); border: 1px solid rgba(168, 85, 247, 0.25); border-radius: 8px; padding: 14px; text-align: center;">
+        <div style="font-size: 0.8rem; color: #94A3B8; font-weight: 600; text-transform: uppercase;">Validation Split</div>
+        <div style="font-size: 1.4rem; font-weight: 700; color: #C084FC; margin: 4px 0;">Bemis-Murcko</div>
+        <div style="font-size: 0.75rem; color: #64748B;">Zero train/test scaffold overlap</div>
+    </div>
+    """, unsafe_allow_html=True)
 
 with col4:
-    st.metric(label="Primary Architecture", value="GNN + ESM-2", help="PyG GCN encoder + ESM-2 320d projection")
+    st.markdown("""
+    <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 8px; padding: 14px; text-align: center;">
+        <div style="font-size: 0.8rem; color: #94A3B8; font-weight: 600; text-transform: uppercase;">Primary Architecture</div>
+        <div style="font-size: 1.4rem; font-weight: 700; color: #FBBF24; margin: 4px 0;">GNN + ESM-2</div>
+        <div style="font-size: 0.75rem; color: #64748B;">PyG GCN + ESM-2 320d projection</div>
+    </div>
+    """, unsafe_allow_html=True)
 
 st.markdown("---")
 
@@ -140,7 +164,7 @@ with right_col:
     st.subheader("Current Pinned Run Metadata")
     
     # Load recent evaluation metadata if available
-    eval_json_path = Path("artifacts/reports/EVAL-INHA-PRIMARY_evaluation.json")
+    eval_json_path = PROJECT_ROOT / "artifacts" / "reports" / "EVAL-INHA-PRIMARY_evaluation.json"
     if eval_json_path.exists():
         with open(eval_json_path, "r", encoding="utf-8") as f:
             eval_data = json.load(f)

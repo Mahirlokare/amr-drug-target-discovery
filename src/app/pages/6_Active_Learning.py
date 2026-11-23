@@ -38,9 +38,21 @@ balanced_res = sim_data.get("balanced_policy", {})
 
 col1, col2 = st.columns(2)
 with col1:
-    st.metric("Random Selection Hit Rate", f"{random_res.get('overall_hit_rate_pct', 0)}%", help="Uniform random sampling baseline")
+    st.markdown(f"""
+    <div style="background: rgba(100, 116, 139, 0.1); border-radius: 8px; padding: 12px; text-align: center;">
+        <div style="font-size: 0.8rem; color: #94A3B8; text-transform: uppercase;">Random Selection Hit Rate</div>
+        <div style="font-size: 1.5rem; font-weight: 700; color: #F1F5F9;">{random_res.get('overall_hit_rate_pct', 0)}%</div>
+        <div style="font-size: 0.75rem; color: #64748B;">Uniform random sampling baseline</div>
+    </div>
+    """, unsafe_allow_html=True)
 with col2:
-    st.metric("Balanced AL Policy Hit Rate", f"{balanced_res.get('overall_hit_rate_pct', 0)}%", help="Activity + Uncertainty + Diversity policy")
+    st.markdown(f"""
+    <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 8px; padding: 12px; text-align: center;">
+        <div style="font-size: 0.8rem; color: #94A3B8; text-transform: uppercase;">Balanced AL Policy Hit Rate</div>
+        <div style="font-size: 1.5rem; font-weight: 700; color: #34D399;">{balanced_res.get('overall_hit_rate_pct', 0)}%</div>
+        <div style="font-size: 0.75rem; color: #64748B;">Activity + Uncertainty + Diversity policy</div>
+    </div>
+    """, unsafe_allow_html=True)
 
 st.markdown("---")
 

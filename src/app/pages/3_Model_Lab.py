@@ -32,10 +32,34 @@ with open(report_file, "r", encoding="utf-8") as f:
 st.subheader("🛡️ Leakage-Safe Split Verification (Section 11.1)")
 split_info = report.get("split_info", {})
 c1, c2, c3, c4 = st.columns(4)
-c1.metric("Split Protocol", "Bemis-Murcko Scaffold")
-c2.metric("Train Compounds", split_info.get("train_compounds"))
-c3.metric("Val Compounds", split_info.get("val_compounds"))
-c4.metric("Test Compounds", split_info.get("test_compounds"))
+with c1:
+    st.markdown("""
+    <div style="background: rgba(59, 130, 246, 0.08); border-radius: 8px; padding: 10px; text-align: center;">
+        <div style="font-size: 0.75rem; color: #94A3B8; text-transform: uppercase;">Split Protocol</div>
+        <div style="font-size: 1.1rem; font-weight: 700; color: #38BDF8;">Bemis-Murcko</div>
+    </div>
+    """, unsafe_allow_html=True)
+with c2:
+    st.markdown(f"""
+    <div style="background: rgba(59, 130, 246, 0.08); border-radius: 8px; padding: 10px; text-align: center;">
+        <div style="font-size: 0.75rem; color: #94A3B8; text-transform: uppercase;">Train Compounds</div>
+        <div style="font-size: 1.1rem; font-weight: 700; color: #38BDF8;">{split_info.get("train_compounds")}</div>
+    </div>
+    """, unsafe_allow_html=True)
+with c3:
+    st.markdown(f"""
+    <div style="background: rgba(59, 130, 246, 0.08); border-radius: 8px; padding: 10px; text-align: center;">
+        <div style="font-size: 0.75rem; color: #94A3B8; text-transform: uppercase;">Val Compounds</div>
+        <div style="font-size: 1.1rem; font-weight: 700; color: #38BDF8;">{split_info.get("val_compounds")}</div>
+    </div>
+    """, unsafe_allow_html=True)
+with c4:
+    st.markdown(f"""
+    <div style="background: rgba(59, 130, 246, 0.08); border-radius: 8px; padding: 10px; text-align: center;">
+        <div style="font-size: 0.75rem; color: #94A3B8; text-transform: uppercase;">Test Compounds</div>
+        <div style="font-size: 1.1rem; font-weight: 700; color: #38BDF8;">{split_info.get("test_compounds")}</div>
+    </div>
+    """, unsafe_allow_html=True)
 
 st.success("✅ Minimum automated leakage assertion passed: `train_scaffolds.isdisjoint(test_scaffolds)` is verified. Zero chemical series leakage.")
 
@@ -59,10 +83,38 @@ p_metrics = report.get("primary_model_metrics", {})
 ci = report.get("confidence_intervals_95", {})
 
 m1, m2, m3, m4 = st.columns(4)
-m1.metric("AUROC", f"{p_metrics.get('AUROC')}", f"95% CI: {ci.get('AUROC_CI')}")
-m2.metric("PR-AUC", f"{p_metrics.get('PR_AUC')}", f"95% CI: {ci.get('PR_AUC_CI')}")
-m3.metric("Enrichment Factor @ 1%", f"{p_metrics.get('EF_1pct')}×", f"95% CI: {ci.get('EF_1pct_CI')}")
-m4.metric("Brier Score (Calibration)", f"{p_metrics.get('BrierScore')}", f"ECE: {p_metrics.get('ExpectedCalibrationError')}")
+with m1:
+    st.markdown(f"""
+    <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 8px; padding: 12px; text-align: center;">
+        <div style="font-size: 0.8rem; color: #94A3B8; text-transform: uppercase;">AUROC</div>
+        <div style="font-size: 1.4rem; font-weight: 700; color: #34D399;">{p_metrics.get('AUROC')}</div>
+        <div style="font-size: 0.7rem; color: #64748B;">95% CI: {ci.get('AUROC_CI')}</div>
+    </div>
+    """, unsafe_allow_html=True)
+with m2:
+    st.markdown(f"""
+    <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 8px; padding: 12px; text-align: center;">
+        <div style="font-size: 0.8rem; color: #94A3B8; text-transform: uppercase;">PR-AUC</div>
+        <div style="font-size: 1.4rem; font-weight: 700; color: #34D399;">{p_metrics.get('PR_AUC')}</div>
+        <div style="font-size: 0.7rem; color: #64748B;">95% CI: {ci.get('PR_AUC_CI')}</div>
+    </div>
+    """, unsafe_allow_html=True)
+with m3:
+    st.markdown(f"""
+    <div style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 8px; padding: 12px; text-align: center;">
+        <div style="font-size: 0.8rem; color: #94A3B8; text-transform: uppercase;">Enrichment Factor @ 1%</div>
+        <div style="font-size: 1.4rem; font-weight: 700; color: #38BDF8;">{p_metrics.get('EF_1pct')}×</div>
+        <div style="font-size: 0.7rem; color: #64748B;">95% CI: {ci.get('EF_1pct_CI')}</div>
+    </div>
+    """, unsafe_allow_html=True)
+with m4:
+    st.markdown(f"""
+    <div style="background: rgba(168, 85, 247, 0.08); border: 1px solid rgba(168, 85, 247, 0.25); border-radius: 8px; padding: 12px; text-align: center;">
+        <div style="font-size: 0.8rem; color: #94A3B8; text-transform: uppercase;">Brier Score</div>
+        <div style="font-size: 1.4rem; font-weight: 700; color: #C084FC;">{p_metrics.get('BrierScore')}</div>
+        <div style="font-size: 0.7rem; color: #64748B;">ECE: {p_metrics.get('ExpectedCalibrationError')}</div>
+    </div>
+    """, unsafe_allow_html=True)
 
 # Reliability Diagram
 st.markdown("---")

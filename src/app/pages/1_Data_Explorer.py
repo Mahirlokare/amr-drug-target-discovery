@@ -41,11 +41,41 @@ m1, m2, m3, m4, m5 = st.columns(5)
 c_sum = qc_report.get("compound_summary", {})
 a_sum = qc_report.get("activity_summary", {})
 
-m1.metric("Total Compounds", c_sum.get("total", 0))
-m2.metric("Valid Standardized", f"{c_sum.get('valid', 0)} ({c_sum.get('success_rate_pct', 0)}%)")
-m3.metric("Actives (IC50 <= 1 µM)", a_sum.get("labeled_active", 0))
-m4.metric("Inactives (IC50 > 10 µM)", a_sum.get("labeled_inactive", 0))
-m5.metric("Quarantined (1-10 µM)", a_sum.get("quarantined_intermediate", 0))
+with m1:
+    st.markdown(f"""
+    <div style="background: rgba(100, 116, 139, 0.1); border-radius: 8px; padding: 10px; text-align: center;">
+        <div style="font-size: 0.75rem; color: #94A3B8; text-transform: uppercase;">Total Compounds</div>
+        <div style="font-size: 1.3rem; font-weight: 700; color: #F1F5F9;">{c_sum.get('total', 0)}</div>
+    </div>
+    """, unsafe_allow_html=True)
+with m2:
+    st.markdown(f"""
+    <div style="background: rgba(59, 130, 246, 0.08); border-radius: 8px; padding: 10px; text-align: center;">
+        <div style="font-size: 0.75rem; color: #94A3B8; text-transform: uppercase;">Standardized</div>
+        <div style="font-size: 1.3rem; font-weight: 700; color: #38BDF8;">{c_sum.get('valid', 0)} ({c_sum.get('success_rate_pct', 0)}%)</div>
+    </div>
+    """, unsafe_allow_html=True)
+with m3:
+    st.markdown(f"""
+    <div style="background: rgba(16, 185, 129, 0.08); border-radius: 8px; padding: 10px; text-align: center;">
+        <div style="font-size: 0.75rem; color: #94A3B8; text-transform: uppercase;">Actives (≤ 1 µM)</div>
+        <div style="font-size: 1.3rem; font-weight: 700; color: #34D399;">{a_sum.get('labeled_active', 0)}</div>
+    </div>
+    """, unsafe_allow_html=True)
+with m4:
+    st.markdown(f"""
+    <div style="background: rgba(239, 68, 68, 0.08); border-radius: 8px; padding: 10px; text-align: center;">
+        <div style="font-size: 0.75rem; color: #94A3B8; text-transform: uppercase;">Inactives (> 10 µM)</div>
+        <div style="font-size: 1.3rem; font-weight: 700; color: #F87171;">{a_sum.get('labeled_inactive', 0)}</div>
+    </div>
+    """, unsafe_allow_html=True)
+with m5:
+    st.markdown(f"""
+    <div style="background: rgba(245, 158, 11, 0.08); border-radius: 8px; padding: 10px; text-align: center;">
+        <div style="font-size: 0.75rem; color: #94A3B8; text-transform: uppercase;">Quarantined</div>
+        <div style="font-size: 1.3rem; font-weight: 700; color: #FBBF24;">{a_sum.get('quarantined_intermediate', 0)}</div>
+    </div>
+    """, unsafe_allow_html=True)
 
 st.markdown("---")
 
