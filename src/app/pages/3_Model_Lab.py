@@ -3,8 +3,15 @@ Page 3: Model Lab & Benchmark Comparisons.
 Complies with Project 9 Blueprint Section 10, 11 & 15.1 (Model Lab).
 """
 
-import json
+import sys
 from pathlib import Path
+
+# Ensure project root is on Python path
+_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
+
+import json
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -12,7 +19,7 @@ import numpy as np
 st.set_page_config(page_title="Model Lab | AMR Discovery", page_icon="🧪", layout="wide")
 st.title("🧪 Model Lab: Benchmarks & Scaffold Evaluation")
 
-report_file = Path("artifacts/reports/EVAL-INHA-PRIMARY_evaluation.json")
+report_file = _ROOT / "artifacts" / "reports" / "EVAL-INHA-PRIMARY_evaluation.json"
 
 if not report_file.exists():
     st.warning("Evaluation report not found. Please run `python run_pipeline.py` first.")

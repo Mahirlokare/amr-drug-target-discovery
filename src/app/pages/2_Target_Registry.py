@@ -3,7 +3,14 @@ Page 2: Target Registry.
 Complies with Project 9 Blueprint Section 15.1 (Target Registry).
 """
 
+import sys
 from pathlib import Path
+
+# Ensure project root is on Python path
+_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
+
 import streamlit as st
 import yaml
 

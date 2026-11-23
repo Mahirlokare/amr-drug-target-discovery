@@ -3,8 +3,15 @@ Page 4: Candidate Ranking & Triage Table.
 Complies with Project 9 Blueprint Section 15.1 & 15.2 (Candidate ranking table).
 """
 
-import json
+import sys
 from pathlib import Path
+
+# Ensure project root is on Python path
+_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
+
+import json
 import streamlit as st
 import pandas as pd
 
@@ -63,7 +70,7 @@ st.markdown("---")
 if st.button("🚀 Run Multimodal Scoring & Triage", type="primary"):
     with st.spinner("Executing GNN + ESM-2 scoring, uncertainty estimation & ADMET triage..."):
         # Load models from artifacts
-        checkpoints = list(Path("artifacts/checkpoints").glob("dti_model_seed_*.pt"))
+        checkpoints = list((_ROOT / "artifacts" / "checkpoints").glob("dti_model_seed_*.pt"))
         device = torch.device("cpu")
 
         models = []

@@ -11,6 +11,8 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.9
+      - key: PYTHONPATH
+        value: .
       - key: STREAMLIT_SERVER_HEADLESS
         value: "true"
       - key: STREAMLIT_SERVER_ENABLE_CORS

@@ -3,8 +3,15 @@ AMR Drug Target Discovery - Streamlit Research Platform.
 Complies with Project 9 Blueprint Section 15 (Frontend and dashboard specification).
 """
 
-import json
+import sys
 from pathlib import Path
+
+# Ensure project root directory is on Python path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+import json
 import streamlit as st
 import pandas as pd
 

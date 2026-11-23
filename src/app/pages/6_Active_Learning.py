@@ -3,8 +3,15 @@ Page 6: Retrospective Active Learning Simulation.
 Complies with Project 9 Blueprint Section 12.3 & 15.1 (Active Learning).
 """
 
-import json
+import sys
 from pathlib import Path
+
+# Ensure project root is on Python path
+_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
+
+import json
 import streamlit as st
 import pandas as pd
 
@@ -17,7 +24,7 @@ By balancing **predicted activity**, **model epistemic uncertainty**, and **chem
 prioritizes the most informative molecules to screen next under a fixed experimental budget.
 """)
 
-al_file = Path("artifacts/reports/active_learning_simulation.json")
+al_file = _ROOT / "artifacts" / "reports" / "active_learning_simulation.json"
 
 if not al_file.exists():
     st.warning("Active learning simulation results not found. Please run `python run_pipeline.py` first.")

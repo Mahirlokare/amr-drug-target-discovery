@@ -3,8 +3,15 @@ Page 1: Data Explorer & QC Audit.
 Complies with Project 9 Blueprint Section 15.1 (Data Explorer).
 """
 
-import json
+import sys
 from pathlib import Path
+
+# Ensure project root is on Python path
+_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
+
+import json
 import streamlit as st
 import pandas as pd
 from rdkit import Chem
@@ -13,7 +20,7 @@ from rdkit.Chem.Draw import rdMolDraw2D
 st.set_page_config(page_title="Data Explorer | AMR Discovery", page_icon="🔍", layout="wide")
 st.title("🔍 Curated Bioactivity Data Explorer & QC")
 
-data_file = Path("data/processed/inha_benchmark_v1.json")
+data_file = _ROOT / "data" / "processed" / "inha_benchmark_v1.json"
 
 if not data_file.exists():
     st.error("Processed benchmark dataset not found. Please run `python run_pipeline.py` first.")

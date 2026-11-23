@@ -3,7 +3,14 @@ Page 5: Candidate Detail & Evidence Card.
 Complies with Project 9 Blueprint Section 13.7 & 15.1 (Candidate Detail).
 """
 
+import sys
 from pathlib import Path
+
+# Ensure project root is on Python path
+_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
+
 import streamlit as st
 import pandas as pd
 from rdkit import Chem
