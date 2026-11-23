@@ -21,20 +21,17 @@ def test_main_app_file_exists():
     assert main_app.stat().st_size > 0
 
 
-def test_all_13_blueprint_pages_exist():
+def test_all_blueprint_pages_exist():
     expected_pages = [
-        "01_Projects.py",
-        "02_Target_Registry.py",
-        "03_Data_Explorer.py",
-        "04_Feature_Store.py",
-        "05_Model_Lab.py",
-        "06_Evaluation.py",
-        "07_Candidate_Ranking.py",
-        "08_Active_Learning.py",
-        "09_Explainability.py",
-        "10_Docking_and_ADMET.py",
-        "11_Reports.py",
-        "12_Settings.py",
+        "01_Target_Explorer.py",
+        "02_Data_Explorer.py",
+        "03_Molecular_Analysis.py",
+        "04_Protein_Analysis.py",
+        "05_Model_Laboratory.py",
+        "06_Model_Evaluation.py",
+        "07_Candidate_Discovery.py",
+        "08_Docking_and_ADMET.py",
+        "09_Reports.py",
     ]
     for page_name in expected_pages:
         page_path = PAGES_DIR / page_name
