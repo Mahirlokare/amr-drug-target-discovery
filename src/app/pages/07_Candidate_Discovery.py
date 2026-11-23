@@ -99,23 +99,7 @@ if st.button("🚀 Run Multimodal Scoring & ADMET Triage", type="primary"):
             st.error("No valid chemical structures could be parsed.")
             st.stop()
 
-        checkpoints = list((_ROOT / "artifacts" / "checkpoints").glob("dti_model_seed_*.pt"))
-        device = torch.device("cpu")
-        models = []
-        if checkpoints:
-            for ckpt in checkpoints[:3]:
-                m = MultimodalDTIFusionModel()
-                m.load_state_dict(torch.load(ckpt, weights_only=True, map_location=device))
-                models.append(m)
-        else:
-            models = [MultimodalDTIFusionModel()]
-
-        pipeline = CandidateScoringPipeline(
-            ensemble_models=models,
-            calibrator=ProbabilityCalibrator(),
-            train_reference_smiles=["O=C(NN)c1ccncc1", "Cc1ccc(cc1)c2nnc(s2)NC(=O)c3cc(Cl)sc3Cl"],
-            epistemic_threshold=0.15
-        )
+        pipeline = CandidateScoringPipeline.load_default_pipeline(_ROOT)
 
         t_meta = target_reg[selected_tid]
         t_obj = Target(

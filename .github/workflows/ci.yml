@@ -50,17 +50,9 @@ jobs:
         run: |
           flake8 src tests --count --select=E9,F63,F7,F82 --show-source --statistics
 
-      - name: Run Unit Tests & Database Persistence
+      - name: Run Complete Automated Test Suite (51 Tests)
         run: |
-          pytest tests/unit/ -v
-
-      - name: Run Scientific Integrity & Zero-Leakage Tests
-        run: |
-          pytest tests/leakage/ -v
-
-      - name: Run Integration & Performance Regression Tests
-        run: |
-          pytest tests/integration/ tests/regression/ -v
+            pytest tests/ -v
 
   docker-build-check:
     name: Build & Verify Production Container

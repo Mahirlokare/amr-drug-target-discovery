@@ -66,22 +66,31 @@ class VinaRunner:
                 proc = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
                 stdout = proc.stdout
                 best_score = self._extract_vina_score(stdout)
-                return best_score, stdout, None
+                return best_score, stdout, None, {
+                    "is_vina_binary": True,
+                    "engine": "AutoDock Vina 1.2.5 (CLI)",
+                    "status": "COMPLETED"
+                }
             except Exception as e:
-                logger.warning(f"Vina execution failed: {e}. Falling back to internal scoring.")
+                logger.warning(f"Vina execution failed: {e}. Reporting surrogate estimate.")
 
         # Fallback physics-guided scoring calculation
         # Estimates binding energy based on pocket coordinate alignment and atom count
         best_score, stdout, rmsd = self._simulate_docking_affinity(ligand_pdbqt, grid_box, seed)
         
-        # Save a simulated output pose file for visualization
+        # Save output pose file with explicit surrogate disclaimer
         with open(output_pdbqt, "w", encoding="utf-8") as f:
-            f.write(f"REMARK   VINA RESULT:    {best_score:6.2f}      0.000      0.000\n")
+            f.write(f"REMARK   ESTIMATE METHOD: Surrogate Empirical Pocket Alignment (Vina CLI Unavailable)\n")
+            f.write(f"REMARK   ESTIMATED AFFINITY: {best_score:6.2f} kcal/mol\n")
             if ligand_pdbqt.exists():
                 with open(ligand_pdbqt, "r", encoding="utf-8") as lf:
                     f.write(lf.read())
 
-        return best_score, stdout, rmsd
+        return best_score, stdout, rmsd, {
+            "is_vina_binary": False,
+            "engine": "Surrogate Empirical Pocket Alignment (Vina CLI Unavailable on Host)",
+            "status": "SURROGATE_ESTIMATE"
+        }
 
     def _extract_vina_score(self, vina_stdout: str) -> float:
         """Parses output score table from Vina standard output."""

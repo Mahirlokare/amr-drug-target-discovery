@@ -156,14 +156,23 @@ class ESMEmbeddingService:
 
         # Save to disk
         torch.save(tensor, cache_tensor_path)
+        import time
         meta = {
             "target_id": target_id,
             "sequence_hash": seq_hash,
             "sequence_length": len(clean_seq),
             "model_name": self.model_name,
+            "model_revision": "main",
             "embedding_dim": self.embedding_dim,
             "pooling": self.pooling,
             "method": method_used,
+            "is_surrogate": bool(method_used != "huggingface_esm2"),
+            "device": "cuda" if torch.cuda.is_available() else "cpu",
+            "extraction_date": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "processing_configuration": {
+                "pooling": self.pooling,
+                "max_sequence_length": self.max_len,
+            },
             "provenance_note": (
                 "Authentic HuggingFace ESM-2 representation"
                 if method_used == "huggingface_esm2"

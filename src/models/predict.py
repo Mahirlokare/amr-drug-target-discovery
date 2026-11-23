@@ -41,6 +41,73 @@ class CandidateScoringPipeline:
         self.train_reference_smiles = train_reference_smiles or []
         self.epistemic_threshold = epistemic_threshold
 
+    @classmethod
+    def load_default_pipeline(cls, project_root: Optional[Path] = None) -> "CandidateScoringPipeline":
+        """
+        Loads the production model release deterministically from model_release_v1.json.
+        Loads training reference SMILES from curated benchmark data.
+        """
+        import json
+        from src.models.fusion import MultimodalDTIFusionModel
+
+        root = project_root or config_manager.project_root
+        ckpt_dir = root / "artifacts" / "checkpoints"
+        manifest_path = ckpt_dir / "model_release_v1.json"
+
+        device = torch.device("cpu")
+        models: List[torch.nn.Module] = []
+
+        if manifest_path.exists():
+            try:
+                with open(manifest_path, "r", encoding="utf-8") as f:
+                    manifest = json.load(f)
+                ckpt_files = manifest.get("ensemble", {}).get("checkpoints", [])
+                for fname in ckpt_files:
+                    fpath = ckpt_dir / fname
+                    if fpath.exists():
+                        m = MultimodalDTIFusionModel()
+                        m.load_state_dict(torch.load(fpath, weights_only=True, map_location=device))
+                        m.eval()
+                        models.append(m)
+            except Exception as e:
+                logger.warning(f"Error loading model manifest: {e}")
+
+        if not models:
+            # Fallback to sorted checkpoints
+            found_ckpts = sorted(list(ckpt_dir.glob("dti_model_seed_*.pt")))
+            for fpath in found_ckpts[:3]:
+                m = MultimodalDTIFusionModel()
+                m.load_state_dict(torch.load(fpath, weights_only=True, map_location=device))
+                m.eval()
+                models.append(m)
+
+        if not models:
+            logger.warning("No checkpoint files found. Initializing architecture baseline.")
+            models = [MultimodalDTIFusionModel()]
+
+        # Load reference training SMILES
+        train_smi: List[str] = []
+        bench_file = root / "data" / "processed" / "inha_benchmark_v1.json"
+        if bench_file.exists():
+            try:
+                with open(bench_file, "r", encoding="utf-8") as bf:
+                    bdata = json.load(bf)
+                    train_smi = [c["smiles_standard"] for c in bdata.get("compounds", []) if "smiles_standard" in c]
+            except Exception as e:
+                logger.warning(f"Could not load benchmark training SMILES: {e}")
+
+        if not train_smi:
+            train_smi = ["NNC(=O)c1ccncc1", "Oc1ccc(Cl)cc1Oc1ccc(Cl)cc1Cl", "CCc1cc(C(N)=S)ccn1"]
+
+        calibrator = ProbabilityCalibrator(method="platt")
+
+        return cls(
+            ensemble_models=models,
+            calibrator=calibrator,
+            train_reference_smiles=train_smi,
+            epistemic_threshold=0.15
+        )
+
     def score_smiles_list(
         self,
         smiles_list: List[str],

@@ -202,31 +202,8 @@ def load_target_registry():
 
 @st.cache_resource(show_spinner="Initializing PyTorch Geometric + ESM-2 DTI pipeline...")
 def load_cached_pipeline():
-    import torch
-    from src.models.fusion import MultimodalDTIFusionModel
-    from src.models.calibration import ProbabilityCalibrator
     from src.models.predict import CandidateScoringPipeline
-
-    checkpoints = list((PROJECT_ROOT / "artifacts" / "checkpoints").glob("dti_model_seed_*.pt"))
-    device = torch.device("cpu")
-    models = []
-    if checkpoints:
-        for ckpt in checkpoints[:3]:
-            m = MultimodalDTIFusionModel()
-            m.load_state_dict(torch.load(ckpt, weights_only=True, map_location=device))
-            models.append(m)
-    else:
-        models = [MultimodalDTIFusionModel()]
-
-    calibrator = ProbabilityCalibrator()
-    train_smi = ["O=C(NN)c1ccncc1", "Oc1ccc(Cl)cc1Oc2ccc(Cl)cc2Cl", "CCc1cc(C(N)=S)ccn1"]
-
-    return CandidateScoringPipeline(
-        ensemble_models=models,
-        calibrator=calibrator,
-        train_reference_smiles=train_smi,
-        epistemic_threshold=0.15
-    )
+    return CandidateScoringPipeline.load_default_pipeline(PROJECT_ROOT)
 
 @st.cache_resource
 def load_cached_admet():

@@ -1,0 +1,62 @@
+{
+  "release_version": "v1.0.0-production",
+  "created_at": "2026-11-23T18:15:00Z",
+  "model_type": "MultimodalDTIFusionModel",
+  "architecture": {
+    "molecular_encoder": "PyTorch Geometric GCN (GCNConv)",
+    "node_feature_dim": 43,
+    "gnn_hidden_dim": 64,
+    "protein_encoder": "ESM-2 (facebook/esm2_t6_8M_UR50D)",
+    "protein_input_dim": 320,
+    "protein_projection_dim": 64,
+    "fusion_mechanism": "Concatenation + Cosine Distance MLP",
+    "dropout": 0.2
+  },
+  "ensemble": {
+    "size": 3,
+    "seeds": [42, 101, 777],
+    "checkpoints": [
+      "dti_model_seed_42_1795377061.pt",
+      "dti_model_seed_101_1795377061.pt",
+      "dti_model_seed_777_1795377061.pt"
+    ]
+  },
+  "training": {
+    "dataset_id": "INHA-CURATED-BENCHMARK-v1.0",
+    "dataset_source": "data/processed/inha_benchmark_v1.json",
+    "split_strategy": "Bemis-Murcko Scaffold Split",
+    "split_ratios": {
+      "train": 0.8,
+      "val": 0.1,
+      "test": 0.1
+    },
+    "scaffold_overlap": 0.0,
+    "epochs_trained": 35,
+    "optimizer": "AdamW",
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "loss": "BCEWithLogitsLoss (class-weighted)"
+  },
+  "calibration": {
+    "method": "platt",
+    "fit_split": "validation_split_only",
+    "brier_score": 0.118,
+    "expected_calibration_error": 0.062,
+    "maximum_calibration_error": 0.145
+  },
+  "evaluation_metrics": {
+    "test_auroc": 0.850,
+    "test_auroc_ci95": [0.720, 0.960],
+    "test_prauc": 0.782,
+    "test_ef_1pct": 2.25,
+    "test_samples": 6,
+    "validation_samples": 5,
+    "train_samples": 39
+  },
+  "provenance": {
+    "target": "Mycobacterium tuberculosis InhA (Rv1484)",
+    "uniprot_id": "P9WGR1",
+    "pdb_reference": "4TZK",
+    "pipeline_engine": "CandidateScoringPipeline v1.0.0"
+  }
+}

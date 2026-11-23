@@ -237,6 +237,7 @@ amr-drug-discovery/
 │   └── amr_discovery.db               # Persistent SQLite / PostgreSQL storage
 ├── artifacts/                         # Model weights, embeddings, poses, and reports
 │   ├── checkpoints/                   # PyTorch ensemble checkpoints (seeds: 42, 101, 777)
+│   ├── checkpoints/                   # Versioned checkpoints & model_release_v1.json
 │   ├── embeddings/                    # Cached ESM-2 320-dim protein representations
 │   ├── docking/                       # Cleaned PDB/PDBQT structures & docked poses
 │   └── reports/                       # Generated audit reports and evaluation JSONs
@@ -252,31 +253,29 @@ amr-drug-discovery/
 │   ├── admet/                         # Lipinski Ro5, Veber, QED, Synthetic Accessibility, PAINS
 │   ├── evaluation/                    # AUROC, PR-AUC, EF@1%, Brier score, ECE metrics
 │   ├── storage/                       # Dual PostgreSQL / SQLite database manager
-│   └── app/                           # 13-Section Streamlit Command Console
-│       ├── streamlit_app.py           # Overview & Executive Command Dashboard
+│   └── app/                           # 10-Page Research Command Architecture
+│       ├── streamlit_app.py           # Research Dashboard (Overview & Executive Command Console)
 │       └── pages/
-│           ├── 01_Projects.py         # Research projects & pathogen selection
-│           ├── 02_Target_Registry.py  # WHO priority targets & UniProt annotations
-│           ├── 03_Data_Explorer.py    # ChEMBL/PubChem dataset curation & QC inspector
-│           ├── 04_Feature_Store.py    # Molecular graphs & ESM-2 embeddings
-│           ├── 05_Model_Lab.py        # Classical baselines vs PyG GNN vs ESM-2 Fusion
-│           ├── 06_Evaluation.py       # Bemis-Murcko zero-leakage split verification
-│           ├── 07_Candidate_Ranking.py# High-throughput candidate ranking & triage
-│           ├── 08_Active_Learning.py  # Retrospective sequential discovery simulation
-│           ├── 09_Explainability.py   # Atom saliency & pharmacophore attribution
-│           ├── 10_Docking_and_ADMET.py# AutoDock Vina & in-silico ADMET triage
-│           ├── 11_Reports.py          # Exportable Model Cards, Dataset Cards, CSVs
-│           └── 12_Settings.py         # Database health, cache control, diagnostics
-├── tests/                             # Comprehensive 10-category automated test suite (48 tests)
+│           ├── 01_Target_Explorer.py  # Target Explorer: UniProt annotations & 3D WebGL viewer
+│           ├── 02_Data_Explorer.py    # Data Explorer: ChEMBL bioactivity curation & QC
+│           ├── 03_Molecular_Analysis.py # Molecular Analysis: Universal resolver & PyG graph inspector
+│           ├── 04_Protein_Analysis.py # Protein Analysis: Sequence input & ESM-2 embeddings
+│           ├── 05_Model_Laboratory.py # Model Laboratory: GNN + ESM-2 fusion & active learning
+│           ├── 06_Model_Evaluation.py # Model Evaluation: Zero-leakage splits & calibration curves
+│           ├── 07_Candidate_Discovery.py # Candidate Discovery: High-throughput screening & triage
+│           ├── 08_Docking_and_ADMET.py # Docking & ADMET: AutoDock Vina & safety screening
+│           └── 09_Reports.py          # Reports: Model Cards, Dataset Cards & prediction audit logs
+├── tests/                             # Comprehensive 11-category automated test suite (51 tests)
 │   ├── conftest.py                    # Pytest environment & path configuration
 │   ├── unit/                          # Unit tests for RDKit, graphs, calibration, DB CRUD
 │   ├── integration/                   # Data build -> split -> feature extraction chain
 │   ├── leakage/                       # Bemis-Murcko zero-leakage mathematical assertions
 │   ├── regression/                    # Baseline performance benchmarks & stability
-│   ├── models/                        # GNN encoder, fusion forward pass, calibration
-│   ├── embeddings/                    # ESM-2 hashing, dimension validation, provenance
+│   ├── models/                        # GNN encoder, fusion forward pass, deterministic loading
+│   ├── embeddings/                    # ESM-2 hashing, dimension validation, surrogate tagging
 │   ├── scientific/                    # Multi-endpoint bioactivity curation (IC50, Ki, Kd, EC50, MIC)
-│   ├── app/                           # Syntax & page integrity verification
+│   ├── docking/                       # Vina execution, surrogate fallback & record parsing
+│   ├── app/                           # 10-page syntax & navigation verification
 │   └── e2e/                           # End-to-end triage: SMILES -> GNN -> Docking -> ADMET -> DB
 └── docs/                              # Scientific documentation & governance cards
     ├── dataset_card.md                # Data provenance, curation policy, assay sources

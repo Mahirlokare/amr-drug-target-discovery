@@ -22,20 +22,28 @@ class DockingResultParser:
         affinity_kcal_mol: float,
         pose_file: Path,
         redock_rmsd: Optional[float] = None,
-        notes: Optional[str] = None
+        notes: Optional[str] = None,
+        is_vina_binary: bool = False
     ) -> DockingRun:
-        """Constructs a validated DockingRun record."""
+        """Constructs a validated DockingRun record with strict provenance tracking."""
+        engine_str = "AutoDock Vina 1.2.5" if is_vina_binary else "Surrogate Empirical Pocket Alignment (Vina CLI Unavailable)"
+        status_str = "COMPLETED" if is_vina_binary else "SURROGATE_ESTIMATE"
+        default_notes = (
+            "Docking executed via AutoDock Vina CLI."
+            if is_vina_binary
+            else "Surrogate computational affinity estimate. AutoDock Vina binary not present on cloud container host."
+        )
         return DockingRun(
             docking_id=f"DOCK-{uuid.uuid4().hex[:8].upper()}",
             prediction_id=prediction_id,
             compound_id=compound_id,
             target_id=target_id,
             receptor_id=receptor_id,
-            vina_version="AutoDock Vina 1.2.5",
+            vina_version=engine_str,
             exhaustiveness=8,
             affinity_kcal_mol=affinity_kcal_mol,
             pose_path=str(pose_file),
             redock_rmsd=redock_rmsd,
-            status="COMPLETED",
-            notes=notes or "Docking performed on bounded shortlist under standardized protocol."
+            status=status_str,
+            notes=notes or default_notes
         )

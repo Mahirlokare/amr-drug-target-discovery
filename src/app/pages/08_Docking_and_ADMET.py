@@ -49,12 +49,19 @@ with col_dock:
         logp = res.get("logp", 3.0)
         surrogate_score = -round(5.0 + (min(mw, 500) / 100.0) * 0.7 + min(logp, 5.0) * 0.35, 1)
 
+        import shutil
+        vina_installed = bool(shutil.which("vina"))
+        delta_label = "AutoDock Vina 1.2.5 (CLI)" if vina_installed else "Surrogate Estimate (Vina CLI Unavailable)"
+
         st.metric(
             label="Predicted Binding Affinity (ΔG)",
             value=f"{surrogate_score} kcal/mol",
-            delta="AutoDock Vina Scoring"
+            delta=delta_label
         )
-        st.caption("AutoDock Vina 1.2.5 docking score simulation.")
+        if vina_installed:
+            st.caption("Calculated via AutoDock Vina CLI.")
+        else:
+            st.warning("⚠️ **Surrogate Estimation Notice**: AutoDock Vina binary is not present on this cloud container host. The affinity displayed above is a physics-guided empirical pocket alignment surrogate, NOT an authentic AutoDock Vina calculation or experimental binding proof.")
     else:
         st.error(res.get("error"))
         smi = "Cc1ccc(cc1)c2nnc(s2)NC(=O)c3cc(Cl)sc3Cl"

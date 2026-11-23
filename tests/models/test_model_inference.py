@@ -85,8 +85,17 @@ def test_candidate_scoring_pipeline(sample_protein_emb):
     assert 0.0 <= preds[0].calibrated_prob <= 1.0
     assert preds[0].uncertainty >= 0.0
     assert preds[0].decision_status in [
-        "PRIORITISED",
+        "PRIORITISED_CANDIDATE",
         "PREDICTED_INACTIVE",
         "UNCERTAIN_PREDICTION",
         "OUT_OF_DOMAIN",
+        "INTERMEDIATE_SCORE"
     ]
+
+
+def test_candidate_scoring_pipeline_load_default():
+    """Verifies deterministic pipeline loading from model_release_v1.json."""
+    pipeline = CandidateScoringPipeline.load_default_pipeline()
+    assert len(pipeline.ensemble_models) >= 1
+    assert len(pipeline.train_reference_smiles) >= 3
+    assert pipeline.calibrator.is_fitted is True

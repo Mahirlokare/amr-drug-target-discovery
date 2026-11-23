@@ -52,6 +52,15 @@ if clean_seq:
     esm_service = ESMEmbeddingService()
     status = esm_service.get_service_status()
 
+    if not status.get("huggingface_transformers_installed", False):
+        st.warning(
+            "⚠️ **Surrogate Sequence Projection Active**: HuggingFace `transformers` ESM-2 model weights are not loaded. "
+            "Currently utilizing a deterministic continuous physicochemical sequence projection (Kyte-Doolittle moments, dim=320). "
+            "This surrogate representation is explicitly tagged and distinct from authentic ESM-2 embeddings."
+        )
+    else:
+        st.success(f"✅ **Authentic ESM-2 Active**: Running HuggingFace checkpoint `{status['model_name']}`.")
+
     st.info(f"**PLM Engine Status**: `{status['active_engine']}` | Model Architecture: `{status['model_name']}` (dim={status['embedding_dim']})")
 
     emb, seq_hash = esm_service.get_embedding(clean_seq, target_id=target_key)

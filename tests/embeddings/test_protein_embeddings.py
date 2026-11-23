@@ -49,6 +49,10 @@ def test_embedding_caching_and_provenance(esm_service, tmp_path):
     assert meta["embedding_dim"] == 320
     assert "method" in meta
     assert "provenance_note" in meta
+    assert "is_surrogate" in meta
+    assert "extraction_date" in meta
+    assert "device" in meta
+    assert "processing_configuration" in meta
 
     # Second call must read from cache
     emb2, hash2 = esm_service.get_embedding(seq, target_id="TARGET-001")
