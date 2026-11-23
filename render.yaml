@@ -1,10 +1,10 @@
 services:
-  # 1. Streamlit Presentation & Discovery Web Service
+  # 1. Streamlit Web Service (Free Tier)
   - type: web
     name: amr-drug-target-discovery
     runtime: python
     region: oregon
-    plan: starter
+    plan: free
     buildCommand: bash render-build.sh
     startCommand: streamlit run src/app/streamlit_app.py --server.port $PORT --server.address 0.0.0.0 --server.headless true --browser.gatherUsageStats false
     healthCheckPath: /_stcore/health
@@ -25,13 +25,9 @@ services:
         fromDatabase:
           name: amr-discovery-db
           property: connectionString
-    disk:
-      name: amr-storage
-      mountPath: /var/data
-      sizeGB: 1
 
 databases:
-  # 2. Persistent PostgreSQL Database
+  # 2. Persistent PostgreSQL Database (Free Tier)
   - name: amr-discovery-db
     region: oregon
     plan: free
