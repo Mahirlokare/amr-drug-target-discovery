@@ -3,6 +3,9 @@ headless = true
 enableCORS = false
 enableXsrfProtection = false
 enableAgentApi = true
+corsAllowedOrigins = ["*"]
+allowedHosts = ["*"]
+xsrfCookieSameSite = "none"
 
 [browser]
 gatherUsageStats = false
