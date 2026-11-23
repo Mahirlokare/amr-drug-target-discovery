@@ -17,6 +17,16 @@ import yaml
 from src.common.config import config_manager
 
 st.set_page_config(page_title="Target Registry | AMR Discovery", page_icon="🎯", layout="wide")
+
+st.markdown("""
+<div style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.4rem;">
+    <span style="font-size: 1.2rem;">🧬</span>
+    <span style="font-size: 0.95rem; font-weight: 700; color: #38BDF8;">DeepTarget-AMR</span>
+    <span style="color: #64748B;">/</span>
+    <span style="font-size: 0.95rem; color: #94A3B8;">Target Registry</span>
+</div>
+""", unsafe_allow_html=True)
+
 st.title("🎯 Bacterial Protein Target Registry")
 
 registry = config_manager.get_config("target_registry")["approved_targets"]

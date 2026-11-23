@@ -26,6 +26,16 @@ from src.storage.db import db_manager
 import torch
 
 st.set_page_config(page_title="Candidate Ranking | AMR Discovery", page_icon="📊", layout="wide")
+
+st.markdown("""
+<div style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.4rem;">
+    <span style="font-size: 1.2rem;">🧬</span>
+    <span style="font-size: 0.95rem; font-weight: 700; color: #38BDF8;">DeepTarget-AMR</span>
+    <span style="color: #64748B;">/</span>
+    <span style="font-size: 0.95rem; color: #94A3B8;">Candidate Screening</span>
+</div>
+""", unsafe_allow_html=True)
+
 st.title("📊 Candidate Screening & Prioritisation Ranking")
 
 # Target Selection

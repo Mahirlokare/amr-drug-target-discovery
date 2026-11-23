@@ -18,6 +18,16 @@ from rdkit import Chem
 from rdkit.Chem.Draw import rdMolDraw2D
 
 st.set_page_config(page_title="Data Explorer | AMR Discovery", page_icon="🔍", layout="wide")
+
+st.markdown("""
+<div style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.4rem;">
+    <span style="font-size: 1.2rem;">🧬</span>
+    <span style="font-size: 0.95rem; font-weight: 700; color: #38BDF8;">DeepTarget-AMR</span>
+    <span style="color: #64748B;">/</span>
+    <span style="font-size: 0.95rem; color: #94A3B8;">Data Explorer & QC</span>
+</div>
+""", unsafe_allow_html=True)
+
 st.title("🔍 Curated Bioactivity Data Explorer & QC")
 
 data_file = _ROOT / "data" / "processed" / "inha_benchmark_v1.json"

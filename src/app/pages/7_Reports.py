@@ -7,6 +7,16 @@ from pathlib import Path
 import streamlit as st
 
 st.set_page_config(page_title="Reports & Cards | AMR Discovery", page_icon="📑", layout="wide")
+
+st.markdown("""
+<div style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.4rem;">
+    <span style="font-size: 1.2rem;">🧬</span>
+    <span style="font-size: 0.95rem; font-weight: 700; color: #38BDF8;">DeepTarget-AMR</span>
+    <span style="color: #64748B;">/</span>
+    <span style="font-size: 0.95rem; color: #94A3B8;">Scientific Governance & Cards</span>
+</div>
+""", unsafe_allow_html=True)
+
 st.title("📑 Scientific Governance & Model / Dataset Cards")
 
 tab1, tab2, tab3 = st.tabs(["Dataset Card", "Model Card", "Validation Protocol & Governance"])
