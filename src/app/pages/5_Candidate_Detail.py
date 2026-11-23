@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 # Ensure project root is on Python path
-_ROOT = Path(__file__).resolve().parent.parent.parent
+_ROOT = Path(__file__).resolve().parents[3]
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
