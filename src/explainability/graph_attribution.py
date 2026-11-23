@@ -105,8 +105,10 @@ class GraphAttributionService:
                 avg_sal = float(np.mean([atom_scores[idx] for idx in match])) if match else 0.0
                 detected.append({
                     "name": name,
+                    "pharmacophore": name,
                     "atom_indices": list(match),
-                    "mean_attribution": round(avg_sal, 4)
+                    "mean_attribution": round(avg_sal, 4),
+                    "atom_count": len(match)
                 })
 
         detected.sort(key=lambda x: x["mean_attribution"], reverse=True)

@@ -424,6 +424,37 @@ with tab_sim:
 
                 st.markdown("<div style='height: 0.5rem;'></div>", unsafe_allow_html=True)
                 st.success(f"**Decision Recommendation for {selected_tid}**: `{p.decision_status}` — MW **{admet_run.molecular_weight:.1f}** g/mol, LogP **{admet_run.logp:.2f}**, TPSA **{admet_run.tpsa:.1f}** Å², QED **{admet_run.qed_score:.2f}**, PAINS Alerts: **{admet_run.pains_alert_count}**.")
+
+                with st.expander("🔬 Model Explainability: Atom Saliency & Substructure Attribution", expanded=False):
+                    try:
+                        from src.explainability.graph_attribution import GraphAttributionService
+                        target_emb, _ = pipeline.esm_service.get_embedding(t_obj.sequence, t_obj.target_id)
+                        explainer = GraphAttributionService(pipeline.ensemble_models[0])
+                        attr_res = explainer.attribute_atoms_gradient(eval_smiles, target_emb)
+
+                        if "error" not in attr_res:
+                            e_c1, e_c2 = st.columns([1, 1])
+                            with e_c1:
+                                st.markdown("##### 🧪 Top Contributing Atoms (Input × Gradient)")
+                                top_atoms_data = []
+                                for a_idx in attr_res.get("top_contributing_atoms", []):
+                                    sym = attr_res["atom_symbols"][a_idx]
+                                    score = attr_res["atom_importances"][a_idx]
+                                    top_atoms_data.append({"Atom Index": a_idx, "Element": sym, "Attribution Score": score})
+                                if top_atoms_data:
+                                    st.dataframe(pd.DataFrame(top_atoms_data), use_container_width=True)
+                            with e_c2:
+                                st.markdown("##### 🎯 Identified Pharmacophore Substructures")
+                                pharms = attr_res.get("pharmacophores", [])
+                                if pharms:
+                                    for ph in pharms:
+                                        st.write(f"• **{ph['pharmacophore']}**: Mean Saliency `{ph['mean_attribution']:.3f}` ({ph['atom_count']} atoms)")
+                                else:
+                                    st.caption("No standard benchmark pharmacophores matched.")
+
+                            st.caption("ℹ️ **Scientific Limitation**: Attribution scores reflect gradient sensitivity of the molecular GNN model weights. They provide feature importance insights and do not replace experimental binding site verification.")
+                    except Exception as ex:
+                        st.caption(f"Explainability module note: {ex}")
             elif warnings:
                 st.warning(f"Validation notices: {warnings}")
         except Exception as e:

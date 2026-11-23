@@ -265,7 +265,7 @@ amr-drug-discovery/
 │           ├── 07_Candidate_Discovery.py # Candidate Discovery: High-throughput screening & triage
 │           ├── 08_Docking_and_ADMET.py # Docking & ADMET: AutoDock Vina & safety screening
 │           └── 09_Reports.py          # Reports: Model Cards, Dataset Cards & prediction audit logs
-├── tests/                             # Comprehensive 11-category automated test suite (51 tests)
+├── tests/                             # Comprehensive 13-category automated test suite (58 tests)
 │   ├── conftest.py                    # Pytest environment & path configuration
 │   ├── unit/                          # Unit tests for RDKit, graphs, calibration, DB CRUD
 │   ├── integration/                   # Data build -> split -> feature extraction chain
@@ -275,6 +275,8 @@ amr-drug-discovery/
 │   ├── embeddings/                    # ESM-2 hashing, dimension validation, surrogate tagging
 │   ├── scientific/                    # Multi-endpoint bioactivity curation (IC50, Ki, Kd, EC50, MIC)
 │   ├── docking/                       # Vina execution, surrogate fallback & record parsing
+│   ├── explainability/                # Input x Gradient atom saliency & pharmacophore tests
+│   ├── active_learning/               # Random, greedy, uncertainty & balanced diversity policies
 │   ├── app/                           # 10-page syntax & navigation verification
 │   └── e2e/                           # End-to-end triage: SMILES -> GNN -> Docking -> ADMET -> DB
 └── docs/                              # Scientific documentation & governance cards

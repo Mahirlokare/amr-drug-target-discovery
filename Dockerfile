@@ -9,6 +9,7 @@ ENV PYTHONUNBUFFERED=1 \
     STREAMLIT_SERVER_HEADLESS=true \
     STREAMLIT_SERVER_ENABLE_CORS=false \
     STREAMLIT_SERVER_ENABLE_XSRF_PROTECTION=false \
+    STREAMLIT_SERVER_ENABLE_AGENT_API=true \
     STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
 
 WORKDIR /app
@@ -29,11 +30,13 @@ RUN pip install --no-cache-dir torch-geometric>=2.5.0 && \
     pip install --no-cache-dir -r requirements.txt
 
 # Copy application source, configs, artifacts, and documentation
+COPY .streamlit/ ./.streamlit/
 COPY src/ ./src/
 COPY configs/ ./configs/
 COPY artifacts/ ./artifacts/
 COPY data/ ./data/
 COPY docs/ ./docs/
+COPY scripts/ ./scripts/
 COPY run_pipeline.py ./
 
 # Create data and disk directories
