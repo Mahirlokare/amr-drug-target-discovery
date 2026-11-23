@@ -5,8 +5,11 @@
 [![PyTorch Geometric](https://img.shields.io/badge/PyG-2.8-orange.svg)](https://pytorch-geometric.readthedocs.io/)
 [![RDKit](https://img.shields.io/badge/RDKit-2026.09-green.svg)](https://www.rdkit.org/)
 [![CI Pipeline](https://github.com/Mahirlokare/amr-drug-target-discovery/actions/workflows/ci.yml/badge.svg)](https://github.com/Mahirlokare/amr-drug-target-discovery/actions)
-[![Deploy: Render](https://img.shields.io/badge/Deploy-Render-46E3B7.svg)](https://render.com)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Render-46E3B7.svg)](https://amr-drug-target-discovery.onrender.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
+
+> 🚀 **Live Cloud Application**: [https://amr-drug-target-discovery.onrender.com](https://amr-drug-target-discovery.onrender.com)  
+> 🏥 **Healthcheck Endpoint**: [https://amr-drug-target-discovery.onrender.com/_stcore/health](https://amr-drug-target-discovery.onrender.com/_stcore/health)
 
 An end-to-end reproducible computational research platform designed to prioritize small-molecule therapeutics against high-impact bacterial targets relevant to antimicrobial resistance (AMR), specifically focusing on **_Mycobacterium tuberculosis_ Enoyl-[acyl-carrier-protein] reductase [NADH] (InhA)**.
 
