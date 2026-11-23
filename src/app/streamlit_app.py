@@ -470,19 +470,10 @@ with sim_col_right:
     # Render 2D chemical structure preview
     svg_content = render_smiles_svg(eval_smiles, width=320, height=140) if eval_smiles else None
     if svg_content:
-        st.markdown(f"""
-        <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 0.6rem; text-align: center;">
-            <div style="font-size: 0.74rem; font-weight: 600; color: #94A3B8; text-transform: uppercase; margin-bottom: 0.2rem;">2D Chemical Topology</div>
-            {svg_content}
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown("<div style='font-size: 0.76rem; font-weight: 600; color: #94A3B8; text-transform: uppercase; margin-bottom: 0.3rem; text-align: center;'>2D Chemical Topology</div>", unsafe_allow_html=True)
+        st.image(svg_content, use_container_width=True)
     else:
-        st.markdown("""
-        <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 1.5rem; text-align: center; color: #64748B;">
-            <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🧪</div>
-            Enter valid SMILES to inspect 2D molecular structure.
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown("<div style='background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 1.5rem; text-align: center; color: #64748B;'><div style='font-size: 1.5rem; margin-bottom: 0.5rem;'>🧪</div>Enter valid SMILES to inspect 2D molecular structure.</div>", unsafe_allow_html=True)
 
 if run_btn:
     with st.spinner("Executing GNN graph convolutions, ESM-2 PLM projection, and ADMET filters..."):
