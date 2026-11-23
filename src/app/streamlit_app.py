@@ -274,49 +274,19 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# EXECUTIVE KPI RIBBON
+# EXECUTIVE KPI RIBBON (Native Streamlit API)
 # ---------------------------------------------------------
 kpi_c1, kpi_c2, kpi_c3, kpi_c4, kpi_c5 = st.columns(5)
 with kpi_c1:
-    st.markdown("""
-    <div class="metric-tile">
-        <div class="metric-label">Lead Target</div>
-        <div class="metric-val" style="color: #38BDF8;">InhA</div>
-        <div class="metric-sub">M. tuberculosis Rv1484</div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.metric(label="Lead Target", value="InhA", delta="M. tb Rv1484")
 with kpi_c2:
-    st.markdown("""
-    <div class="metric-tile">
-        <div class="metric-label">Scaffold Isolation</div>
-        <div class="metric-val" style="color: #34D399;">0.0%</div>
-        <div class="metric-sub">Zero Train/Test Leakage</div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.metric(label="Scaffold Isolation", value="0.0%", delta="Zero Leakage")
 with kpi_c3:
-    st.markdown("""
-    <div class="metric-tile">
-        <div class="metric-label">Multimodal AUROC</div>
-        <div class="metric-val" style="color: #818CF8;">0.850</div>
-        <div class="metric-sub">95% CI: 0.72 – 0.96</div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.metric(label="Multimodal AUROC", value="0.850", delta="95% CI: 0.72–0.96")
 with kpi_c4:
-    st.markdown("""
-    <div class="metric-tile">
-        <div class="metric-label">Early Enrichment</div>
-        <div class="metric-val" style="color: #FBBF24;">2.25×</div>
-        <div class="metric-sub">EF@1% on Held-Out Test</div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.metric(label="Early Enrichment", value="2.25×", delta="EF@1% Test")
 with kpi_c5:
-    st.markdown("""
-    <div class="metric-tile">
-        <div class="metric-label">Triage Protocols</div>
-        <div class="metric-val" style="color: #F472B6;">Vina + ADMET</div>
-        <div class="metric-sub">4TZK Redock + 9 PAINS</div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.metric(label="Triage Protocols", value="Vina + ADMET", delta="4TZK + 9 PAINS")
 
 st.markdown("<div style='height: 0.8rem;'></div>", unsafe_allow_html=True)
 
@@ -451,40 +421,32 @@ with tab_sim:
 
                 prob_pct = p.calibrated_probability * 100
                 with r_c1:
-                    st.markdown(f"""
-                    <div class="result-kpi">
-                        <div style="font-size: 0.72rem; color: #94A3B8; text-transform: uppercase;">Calibrated Probability</div>
-                        <div class="result-kpi-val" style="color: {'#34D399' if p.calibrated_probability >= 0.5 else '#F87171'};">{prob_pct:.1f}%</div>
-                        <div style="font-size: 0.72rem; color: #64748B;">Platt Active Likelihood</div>
-                    </div>
-                    """, unsafe_allow_html=True)
+                    st.metric(
+                        label="Calibrated Probability",
+                        value=f"{prob_pct:.1f}%",
+                        delta="Active Likelihood" if p.calibrated_probability >= 0.5 else "Inactive Likelihood"
+                    )
 
                 with r_c2:
-                    st.markdown(f"""
-                    <div class="result-kpi">
-                        <div style="font-size: 0.72rem; color: #94A3B8; text-transform: uppercase;">Epistemic Uncertainty</div>
-                        <div class="result-kpi-val" style="color: {'#38BDF8' if p.uncertainty <= 0.10 else '#FBBF24'};">{p.uncertainty:.3f}</div>
-                        <div style="font-size: 0.72rem; color: #64748B;">3-Seed Ensemble Spread (σ)</div>
-                    </div>
-                    """, unsafe_allow_html=True)
+                    st.metric(
+                        label="Epistemic Uncertainty",
+                        value=f"{p.uncertainty:.3f}",
+                        delta="Low Variance" if p.uncertainty <= 0.10 else "High Spread"
+                    )
 
                 with r_c3:
-                    st.markdown(f"""
-                    <div class="result-kpi">
-                        <div style="font-size: 0.72rem; color: #94A3B8; text-transform: uppercase;">Chemical Space Domain</div>
-                        <div class="result-kpi-val" style="color: {'#34D399' if not p.is_out_of_domain else '#FBBF24'};">{'In-Domain' if not p.is_out_of_domain else 'OOD Alert'}</div>
-                        <div style="font-size: 0.72rem; color: #64748B;">Tanimoto: {p.nearest_train_similarity:.2f} to Training</div>
-                    </div>
-                    """, unsafe_allow_html=True)
+                    st.metric(
+                        label="Chemical Space Domain",
+                        value="In-Domain" if not p.is_out_of_domain else "OOD Alert",
+                        delta=f"Sim: {p.nearest_train_similarity:.2f}"
+                    )
 
                 with r_c4:
-                    st.markdown(f"""
-                    <div class="result-kpi">
-                        <div style="font-size: 0.72rem; color: #94A3B8; text-transform: uppercase;">ADMET & Safety Triage</div>
-                        <div class="result-kpi-val" style="color: {'#34D399' if admet_run.lipinski_pass and admet_run.pains_alert_count == 0 else '#F87171'};">{'PASS' if admet_run.lipinski_pass else 'FLAGGED'}</div>
-                        <div style="font-size: 0.72rem; color: #64748B;">Ro5: {'Pass' if admet_run.lipinski_pass else 'Fail'} · PAINS: {admet_run.pains_alert_count}</div>
-                    </div>
-                    """, unsafe_allow_html=True)
+                    st.metric(
+                        label="ADMET & Safety Triage",
+                        value="PASS" if admet_run.lipinski_pass and admet_run.pains_alert_count == 0 else "FLAGGED",
+                        delta=f"PAINS: {admet_run.pains_alert_count}"
+                    )
 
                 st.markdown("<div style='height: 0.5rem;'></div>", unsafe_allow_html=True)
                 st.success(f"**Decision Recommendation for {selected_tid}**: `{p.decision_status}` — MW **{admet_run.molecular_weight:.1f}** g/mol, LogP **{admet_run.logp:.2f}**, TPSA **{admet_run.tpsa:.1f}** Å², QED **{admet_run.qed_score:.2f}**, PAINS Alerts: **{admet_run.pains_alert_count}**.")

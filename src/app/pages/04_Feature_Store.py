@@ -55,11 +55,11 @@ with tab_graphs:
         if graph is not None:
             c1, c2, c3 = st.columns(3)
             with c1:
-                st.markdown(f'<div style="background: rgba(17, 24, 39, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 0.75rem 1rem;"><div style="font-size: 0.72rem; font-weight: 600; color: #94A3B8; text-transform: uppercase;">Atom Nodes (|V|)</div><div style="font-size: 1.4rem; font-weight: 700; color: #38BDF8; margin-top: 0.2rem;">{graph.num_nodes}</div><div style="font-size: 0.72rem; color: #64748B;">Heavy atom vertices</div></div>', unsafe_allow_html=True)
+                st.metric("Atom Nodes (|V|)", graph.num_nodes, "Heavy atoms")
             with c2:
-                st.markdown(f'<div style="background: rgba(17, 24, 39, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 0.75rem 1rem;"><div style="font-size: 0.72rem; font-weight: 600; color: #94A3B8; text-transform: uppercase;">Directed Edges (|E|)</div><div style="font-size: 1.4rem; font-weight: 700; color: #34D399; margin-top: 0.2rem;">{graph.num_edges}</div><div style="font-size: 0.72rem; color: #64748B;">Bidirectional covalent bonds</div></div>', unsafe_allow_html=True)
+                st.metric("Directed Edges (|E|)", graph.num_edges, "Bonds")
             with c3:
-                st.markdown(f'<div style="background: rgba(17, 24, 39, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 0.75rem 1rem;"><div style="font-size: 0.72rem; font-weight: 600; color: #94A3B8; text-transform: uppercase;">Node Feature Dim</div><div style="font-size: 1.4rem; font-weight: 700; color: #FBBF24; margin-top: 0.2rem;">{graph.num_node_features}</div><div style="font-size: 0.72rem; color: #64748B;">Invariant descriptors</div></div>', unsafe_allow_html=True)
+                st.metric("Node Feature Dim", graph.num_node_features, "Descriptors")
 
             st.write(f"• **Node Feature Matrix (`x`)**: Shape `{list(graph.x.shape)}` (dtype: `torch.float32`)")
             st.write(f"• **Edge Index (`edge_index`)**: Shape `{list(graph.edge_index.shape)}` (dtype: `torch.int64`)")
@@ -88,11 +88,11 @@ with tab_esm:
 
     e1, e2, e3 = st.columns(3)
     with e1:
-        st.markdown(f'<div style="background: rgba(17, 24, 39, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 0.75rem 1rem;"><div style="font-size: 0.72rem; font-weight: 600; color: #94A3B8; text-transform: uppercase;">Embedding Dim</div><div style="font-size: 1.4rem; font-weight: 700; color: #38BDF8; margin-top: 0.2rem;">{emb.shape[0]}</div><div style="font-size: 0.72rem; color: #64748B;">Dense representation</div></div>', unsafe_allow_html=True)
+        st.metric("Embedding Dim", emb.shape[0], "Dense vector")
     with e2:
-        st.markdown(f'<div style="background: rgba(17, 24, 39, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 0.75rem 1rem;"><div style="font-size: 0.72rem; font-weight: 600; color: #94A3B8; text-transform: uppercase;">L2 Vector Norm</div><div style="font-size: 1.4rem; font-weight: 700; color: #34D399; margin-top: 0.2rem;">{float(np.linalg.norm(emb.numpy())):.3f}</div><div style="font-size: 0.72rem; color: #64748B;">Unit sphere projected</div></div>', unsafe_allow_html=True)
+        st.metric("L2 Vector Norm", f"{float(np.linalg.norm(emb.numpy())):.3f}", "Unit sphere")
     with e3:
-        st.markdown(f'<div style="background: rgba(17, 24, 39, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 0.75rem 1rem;"><div style="font-size: 0.72rem; font-weight: 600; color: #94A3B8; text-transform: uppercase;">Pooling Strategy</div><div style="font-size: 1.4rem; font-weight: 700; color: #FBBF24; margin-top: 0.2rem;">Mean</div><div style="font-size: 0.72rem; color: #64748B;">Global sequence pooling</div></div>', unsafe_allow_html=True)
+        st.metric("Pooling Strategy", "Mean", "Sequence pooling")
 
     st.write(f"• **Embedding Tensor**: Shape `{list(emb.shape)}` (dtype: `torch.float32`)")
     with st.expander("Inspect First 50 Dimensions"):
@@ -107,8 +107,8 @@ with tab_fp:
 
     f1, f2, f3 = st.columns(3)
     with f1:
-        st.markdown(f'<div style="background: rgba(17, 24, 39, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 0.75rem 1rem;"><div style="font-size: 0.72rem; font-weight: 600; color: #94A3B8; text-transform: uppercase;">Bit Length</div><div style="font-size: 1.4rem; font-weight: 700; color: #38BDF8; margin-top: 0.2rem;">{len(fp_vec)}</div><div style="font-size: 0.72rem; color: #64748B;">Fixed length bit vector</div></div>', unsafe_allow_html=True)
+        st.metric("Bit Length", len(fp_vec), "Fixed vector")
     with f2:
-        st.markdown(f'<div style="background: rgba(17, 24, 39, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 0.75rem 1rem;"><div style="font-size: 0.72rem; font-weight: 600; color: #94A3B8; text-transform: uppercase;">Active Bits Set</div><div style="font-size: 1.4rem; font-weight: 700; color: #34D399; margin-top: 0.2rem;">{int(np.sum(fp_vec))}</div><div style="font-size: 0.72rem; color: #64748B;">On-bits in fingerprint</div></div>', unsafe_allow_html=True)
+        st.metric("Active Bits Set", int(np.sum(fp_vec)), "On-bits")
     with f3:
-        st.markdown(f'<div style="background: rgba(17, 24, 39, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 0.75rem 1rem;"><div style="font-size: 0.72rem; font-weight: 600; color: #94A3B8; text-transform: uppercase;">Bit Density</div><div style="font-size: 1.4rem; font-weight: 700; color: #FBBF24; margin-top: 0.2rem;">{float(np.mean(fp_vec)):.2%}</div><div style="font-size: 0.72rem; color: #64748B;">Sparsity factor</div></div>', unsafe_allow_html=True)
+        st.metric("Bit Density", f"{float(np.mean(fp_vec)):.2%}", "Sparsity")

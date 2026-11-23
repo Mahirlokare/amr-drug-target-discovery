@@ -67,13 +67,11 @@ with col_dock:
     logp = res["logp"]
     surrogate_score = -round(5.0 + (min(mw, 500) / 100.0) * 0.7 + min(logp, 5.0) * 0.35, 1)
 
-    st.markdown(f"""
-    <div style="background: rgba(17, 24, 39, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 0.5rem;">
-        <div style="font-size: 0.72rem; font-weight: 600; color: #94A3B8; text-transform: uppercase;">Predicted Binding Affinity (ΔG)</div>
-        <div style="font-size: 1.4rem; font-weight: 700; color: #38BDF8; margin-top: 0.2rem;">{surrogate_score} kcal/mol</div>
-        <div style="font-size: 0.72rem; color: #64748B; margin-top: 0.15rem;">AutoDock Vina surrogate scoring</div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.metric(
+        label="Predicted Binding Affinity (ΔG)",
+        value=f"{surrogate_score} kcal/mol",
+        delta="AutoDock Vina Surrogate"
+    )
     st.caption("AutoDock Vina 1.2.5 docking score simulation.")
 
 with col_admet:
