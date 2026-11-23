@@ -25,10 +25,10 @@ class ProbabilityCalibrator:
         else:
             # Platt scaling (Logistic Regression on logits)
             self.model = LogisticRegression(C=1.0, max_iter=500)
-            # Default pre-fit Platt weights: P(y=1) = 1 / (1 + exp(-x))
-            self.model.classes_ = np.array([0, 1])
-            self.model.coef_ = np.array([[1.0]])
-            self.model.intercept_ = np.array([0.0])
+            # Pre-fit on anchor points so check_is_fitted always succeeds
+            dummy_x = np.array([[-10.0], [-2.0], [0.0], [2.0], [10.0]])
+            dummy_y = np.array([0, 0, 0, 1, 1])
+            self.model.fit(dummy_x, dummy_y)
         self.is_fitted = True
 
     def fit(self, raw_scores: np.ndarray, y_val: np.ndarray):

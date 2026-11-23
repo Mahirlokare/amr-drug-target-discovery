@@ -32,15 +32,47 @@ st.markdown("Rigorous validation under **Bemis-Murcko zero-leakage scaffold spli
 
 # 1. Leakage Verification Card
 st.subheader("🛡️ Zero-Leakage Scaffold Split Verification")
+
+tile_style = """
+<style>
+.eval-card {
+    background: rgba(17, 24, 39, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+}
+.eval-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #94A3B8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.eval-val {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #38BDF8;
+    margin-top: 0.2rem;
+}
+.eval-sub {
+    font-size: 0.72rem;
+    color: #64748B;
+    margin-top: 0.15rem;
+}
+</style>
+"""
+st.markdown(tile_style, unsafe_allow_html=True)
+
 c1, c2, c3, c4 = st.columns(4)
 with c1:
-    st.metric("Split Protocol", "Bemis-Murcko")
+    st.markdown('<div class="eval-card"><div class="eval-label">Split Protocol</div><div class="eval-val">Bemis-Murcko</div><div class="eval-sub">Scaffold Cluster Split</div></div>', unsafe_allow_html=True)
 with c2:
-    st.metric("Train / Val / Test Split", "70% / 15% / 15%")
+    st.markdown('<div class="eval-card"><div class="eval-label">Partition Ratio</div><div class="eval-val">70% / 15% / 15%</div><div class="eval-sub">Train / Val / Test</div></div>', unsafe_allow_html=True)
 with c3:
-    st.metric("Scaffold Overlap", "0.0% (Zero Leakage)")
+    st.markdown('<div class="eval-card"><div class="eval-label">Scaffold Overlap</div><div class="eval-val" style="color: #34D399;">0.0%</div><div class="eval-sub">Zero Train/Test Leakage</div></div>', unsafe_allow_html=True)
 with c4:
-    st.metric("Scaffold Disjointness", "VERIFIED ✓")
+    st.markdown('<div class="eval-card"><div class="eval-label">Scaffold Disjointness</div><div class="eval-val" style="color: #34D399;">VERIFIED ✓</div><div class="eval-sub">Mutually Exclusive Clusters</div></div>', unsafe_allow_html=True)
 
 st.markdown("---")
 
@@ -48,15 +80,15 @@ st.markdown("---")
 st.subheader("Held-Out Test Set Performance Metrics")
 m1, m2, m3, m4, m5 = st.columns(5)
 with m1:
-    st.metric("Multimodal AUROC", "0.850", "95% CI: 0.72 – 0.96")
+    st.markdown('<div class="eval-card"><div class="eval-label">Multimodal AUROC</div><div class="eval-val" style="color: #818CF8;">0.850</div><div class="eval-sub">95% CI: 0.72 – 0.96</div></div>', unsafe_allow_html=True)
 with m2:
-    st.metric("Precision-Recall AUC", "0.880", "+0.12 vs baselines")
+    st.markdown('<div class="eval-card"><div class="eval-label">PR-AUC</div><div class="eval-val" style="color: #38BDF8;">0.880</div><div class="eval-sub">+0.12 vs baselines</div></div>', unsafe_allow_html=True)
 with m3:
-    st.metric("Early Enrichment (EF@1%)", "2.25×", "Over random selection")
+    st.markdown('<div class="eval-card"><div class="eval-label">Early Enrichment</div><div class="eval-val" style="color: #FBBF24;">2.25×</div><div class="eval-sub">EF@1% over random</div></div>', unsafe_allow_html=True)
 with m4:
-    st.metric("Expected Cal. Error (ECE)", "0.082", "Platt Scaled")
+    st.markdown('<div class="eval-card"><div class="eval-label">Cal. Error (ECE)</div><div class="eval-val" style="color: #34D399;">0.082</div><div class="eval-sub">Platt Scaled</div></div>', unsafe_allow_html=True)
 with m5:
-    st.metric("Brier Score Loss", "0.145", "Optimal calibration")
+    st.markdown('<div class="eval-card"><div class="eval-label">Brier Score</div><div class="eval-val" style="color: #A78BFA;">0.145</div><div class="eval-sub">Optimal calibration</div></div>', unsafe_allow_html=True)
 
 st.markdown("---")
 
