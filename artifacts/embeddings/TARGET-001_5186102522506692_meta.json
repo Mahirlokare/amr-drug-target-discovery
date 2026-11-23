@@ -1,0 +1,9 @@
+{
+  "target_id": "TARGET-001",
+  "sequence_hash": "5186102522506692f6a7f6809354fa3d4edbba5769f4947336f781320c5f0912",
+  "sequence_length": 258,
+  "model_name": "facebook/esm2_t6_8M_UR50D",
+  "embedding_dim": 320,
+  "pooling": "mean",
+  "file": "TARGET-001_5186102522506692.pt"
+}

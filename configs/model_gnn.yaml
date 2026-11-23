@@ -1,0 +1,46 @@
+# GNN and Multimodal Fusion Model Configuration
+model_version: "v1.0"
+
+gnn_encoder:
+  architecture: "GCN"
+  node_in_dim: 43
+  hidden_dims: [64, 64, 64]
+  dropout: 0.2
+  readout: "mean"
+  output_dim: 64
+
+protein_projection:
+  input_dim: 320
+  hidden_dim: 128
+  output_dim: 64
+  dropout: 0.2
+
+fusion_head:
+  type: "concatenation" # concatenated dim = 64 + 64 = 128
+  hidden_dims: [128, 64, 32]
+  dropout: 0.2
+  output_dim: 1
+  activation: "relu"
+
+training:
+  optimizer: "AdamW"
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  batch_size: 32
+  epochs: 35
+  early_stopping_patience: 7
+  loss_fn: "BCEWithLogitsLoss"
+  use_class_weights: true
+  seed: 42
+
+uncertainty:
+  method: "deep_ensemble" # ensemble + MC dropout
+  ensemble_size: 3
+  ensemble_seeds: [42, 101, 777]
+  mc_dropout_samples: 20
+  epistemic_threshold: 0.15 # std dev above which prediction is flagged uncertain
+
+applicability_domain:
+  similarity_metric: "tanimoto"
+  nearest_neighbor_k: 5
+  min_similarity_threshold: 0.35 # below this, out-of-distribution

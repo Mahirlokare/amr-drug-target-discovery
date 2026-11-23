@@ -1,0 +1,69 @@
+[
+  {
+    "rank": 1,
+    "compound_id": "CMPD-0006",
+    "smiles": "Cc1ccc(-c2nnc(NC(=O)c3cc(Cl)sc3Cl)s2)cc1",
+    "calibrated_prob": 0.8691,
+    "uncertainty_std": 0.0122,
+    "docking_affinity_kcal_mol": -9.45,
+    "docking_redock_rmsd": 1.58,
+    "lipinski_pass": true,
+    "pains_alerts": [],
+    "qed_score": 0.695,
+    "decision_status": "PRIORITISED_FOR_REVIEW"
+  },
+  {
+    "rank": 2,
+    "compound_id": "CMPD-0048",
+    "smiles": "c1nn[nH]n1",
+    "calibrated_prob": 0.8552,
+    "uncertainty_std": 0.0332,
+    "docking_affinity_kcal_mol": -4.75,
+    "docking_redock_rmsd": 0.83,
+    "lipinski_pass": true,
+    "pains_alerts": [],
+    "qed_score": 0.434,
+    "decision_status": "PRIORITISED_FOR_REVIEW"
+  },
+  {
+    "rank": 3,
+    "compound_id": "CMPD-0026",
+    "smiles": "Cc1ccc2nc(-c3ccncc3)sc2c1",
+    "calibrated_prob": 0.8519,
+    "uncertainty_std": 0.051,
+    "docking_affinity_kcal_mol": -8.73,
+    "docking_redock_rmsd": 1.19,
+    "lipinski_pass": true,
+    "pains_alerts": [],
+    "qed_score": 0.632,
+    "decision_status": "PRIORITISED_FOR_REVIEW"
+  },
+  {
+    "rank": 4,
+    "compound_id": "CMPD-0007",
+    "smiles": "O=C(Nc1ccc(C(F)(F)F)cc1)c1cc(Cl)sc1Cl",
+    "calibrated_prob": 0.8325,
+    "uncertainty_std": 0.0871,
+    "docking_affinity_kcal_mol": -8.89,
+    "docking_redock_rmsd": 1.48,
+    "lipinski_pass": true,
+    "pains_alerts": [
+      "Aniline"
+    ],
+    "qed_score": 0.787,
+    "decision_status": "PRIORITISED_FOR_REVIEW"
+  },
+  {
+    "rank": 5,
+    "compound_id": "CMPD-0030",
+    "smiles": "NC(=O)c1cnccn1",
+    "calibrated_prob": 0.7773,
+    "uncertainty_std": 0.129,
+    "docking_affinity_kcal_mol": -5.65,
+    "docking_redock_rmsd": 0.98,
+    "lipinski_pass": true,
+    "pains_alerts": [],
+    "qed_score": 0.551,
+    "decision_status": "PRIORITISED_FOR_REVIEW"
+  }
+]

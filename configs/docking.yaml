@@ -1,0 +1,48 @@
+# Docking and ADMET Triage Configuration
+docking:
+  tool: "AutoDock Vina"
+  version: "1.2.5"
+  default_target: "TARGET-001"
+  receptors:
+    TARGET-001:
+      pdb_id: "4TZK"
+      chain: "A"
+      cofactor: "NAD" # Nicotinamide adenine dinucleotide present in InhA pocket
+      box:
+        center: [16.5, 5.2, -11.8]
+        size: [20.0, 20.0, 20.0]
+      redock_control:
+        known_ligand_pdb_res: "GEQ"
+        expected_rmsd_cutoff: 2.0
+    TARGET-002:
+      pdb_id: "4KW5"
+      chain: "A"
+      box:
+        center: [12.0, -18.5, 32.1]
+        size: [22.0, 22.0, 22.0]
+  vina_settings:
+    exhaustiveness: 8
+    num_modes: 9
+    energy_range: 3.0
+    cpu: 4
+  triage_rules:
+    max_shortlist_size: 25
+    vina_score_threshold: -7.0 # kcal/mol (more negative = stronger predicted affinity)
+
+admet:
+  filters:
+    lipinski:
+      max_mw: 500.0
+      max_logp: 5.0
+      max_hbd: 5
+      max_hba: 10
+      max_violations: 1
+    veber:
+      max_rotatable_bonds: 10
+      max_tpsa: 140.0
+    pains:
+      check_alerts: true
+    qed:
+      min_score: 0.40
+    synthetic_accessibility:
+      max_score: 6.0 # 1 (easy) to 10 (hard)

@@ -1,0 +1,98 @@
+{
+  "random_policy": {
+    "policy": "random",
+    "cumulative_budget": [
+      15,
+      23,
+      31,
+      39,
+      47
+    ],
+    "cumulative_actives": [
+      9,
+      15,
+      22,
+      25,
+      29
+    ],
+    "overall_hit_rate_pct": 61.7,
+    "round_histories": [
+      {
+        "round": 1,
+        "batch_size": 8,
+        "actives_found": 6,
+        "hit_rate_pct": 75.0,
+        "total_actives_so_far": 15
+      },
+      {
+        "round": 2,
+        "batch_size": 8,
+        "actives_found": 7,
+        "hit_rate_pct": 87.5,
+        "total_actives_so_far": 22
+      },
+      {
+        "round": 3,
+        "batch_size": 8,
+        "actives_found": 3,
+        "hit_rate_pct": 37.5,
+        "total_actives_so_far": 25
+      },
+      {
+        "round": 4,
+        "batch_size": 8,
+        "actives_found": 4,
+        "hit_rate_pct": 50.0,
+        "total_actives_so_far": 29
+      }
+    ]
+  },
+  "balanced_policy": {
+    "policy": "balanced",
+    "cumulative_budget": [
+      15,
+      23,
+      31,
+      39,
+      47
+    ],
+    "cumulative_actives": [
+      9,
+      16,
+      21,
+      28,
+      30
+    ],
+    "overall_hit_rate_pct": 63.83,
+    "round_histories": [
+      {
+        "round": 1,
+        "batch_size": 8,
+        "actives_found": 7,
+        "hit_rate_pct": 87.5,
+        "total_actives_so_far": 16
+      },
+      {
+        "round": 2,
+        "batch_size": 8,
+        "actives_found": 5,
+        "hit_rate_pct": 62.5,
+        "total_actives_so_far": 21
+      },
+      {
+        "round": 3,
+        "batch_size": 8,
+        "actives_found": 7,
+        "hit_rate_pct": 87.5,
+        "total_actives_so_far": 28
+      },
+      {
+        "round": 4,
+        "batch_size": 8,
+        "actives_found": 2,
+        "hit_rate_pct": 25.0,
+        "total_actives_so_far": 30
+      }
+    ]
+  }
+}

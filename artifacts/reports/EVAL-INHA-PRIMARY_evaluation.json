@@ -1,0 +1,119 @@
+{
+  "report_id": "EVAL-INHA-PRIMARY",
+  "target_id": "TARGET-001",
+  "split_info": {
+    "type": "bemis_murcko_scaffold",
+    "train_compounds": 36,
+    "val_compounds": 7,
+    "test_compounds": 9
+  },
+  "models_comparison": [
+    {
+      "Model": "majority_prevalence",
+      "Type": "Classical Baseline",
+      "AUROC": 0.5,
+      "PR-AUC": 0.4444,
+      "Brier Score": 0.2747,
+      "EF@1%": "-",
+      "ECE": "-"
+    },
+    {
+      "Model": "morgan_logistic_regression",
+      "Type": "Classical Baseline",
+      "AUROC": 0.95,
+      "PR-AUC": 0.95,
+      "Brier Score": 0.0881,
+      "EF@1%": "-",
+      "ECE": "-"
+    },
+    {
+      "Model": "morgan_random_forest",
+      "Type": "Classical Baseline",
+      "AUROC": 1.0,
+      "PR-AUC": 1.0,
+      "Brier Score": 0.1143,
+      "EF@1%": "-",
+      "ECE": "-"
+    },
+    {
+      "Model": "morgan_gradient_boosting",
+      "Type": "Classical Baseline",
+      "AUROC": 0.5,
+      "PR-AUC": 0.4444,
+      "Brier Score": 0.25,
+      "EF@1%": "-",
+      "ECE": "-"
+    },
+    {
+      "Model": "Molecular GNN (PyG)",
+      "Type": "Graph Deep Learning",
+      "AUROC": 0.9,
+      "PR-AUC": 0.8875,
+      "Brier Score": 0.1507,
+      "EF@1%": 2.25,
+      "ECE": 0.1576
+    },
+    {
+      "Model": "Multimodal GNN + ESM-2",
+      "Type": "Multimodal DTI",
+      "AUROC": 0.85,
+      "PR-AUC": 0.8042,
+      "Brier Score": 0.1924,
+      "EF@1%": 2.25,
+      "ECE": 0.2669
+    }
+  ],
+  "primary_model_metrics": {
+    "sample_count": 9,
+    "active_count": 4,
+    "prevalence_baseline": 0.4444,
+    "AUROC": 0.85,
+    "PR_AUC": 0.8042,
+    "BalancedAccuracy": 0.8,
+    "F1_Macro": 0.775,
+    "EF_1pct": 2.25,
+    "EF_5pct": 2.25,
+    "HitRate_Top25": 0.4444,
+    "BrierScore": 0.1924,
+    "ExpectedCalibrationError": 0.2669,
+    "reliability_bins": {
+      "bin_confidences": [
+        0.05,
+        0.15,
+        0.25,
+        0.3125,
+        0.4477,
+        0.55,
+        0.6979,
+        0.7773,
+        0.8522,
+        0.95
+      ],
+      "bin_accuracies": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.75,
+        0.0
+      ],
+      "bin_counts": [
+        0,
+        0,
+        0,
+        2,
+        1,
+        0,
+        1,
+        1,
+        4,
+        0
+      ]
+    }
+  },
+  "confidence_intervals_95": {}
+}

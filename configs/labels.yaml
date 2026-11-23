@@ -1,0 +1,41 @@
+# Label Definition & Harmonisation Policy
+policy_version: "label-v1.0"
+target_id: "TARGET-001"
+
+primary_endpoint: "IC50"
+permitted_relations:
+  - "="
+  - "~"
+
+# Strict endpoint harmonisation
+units_conversion:
+  target_unit: "nM"
+  factors:
+    "nM": 1.0
+    "uM": 1000.0
+    "mM": 1000000.0
+    "M": 1000000000.0
+    "ug.mL-1": null # excluded unless molar mass can resolve strictly
+
+classification:
+  # Active: IC50 <= 1000 nM (pIC50 >= 6.0)
+  active_max_nm: 1000.0
+  active_min_pic50: 6.0
+
+  # Inactive: IC50 > 10000 nM (pIC50 < 5.0)
+  inactive_min_nm: 10000.0
+  inactive_max_pic50: 5.0
+
+  # Intermediate / ambiguous: 1000 nM < IC50 <= 10000 nM
+  quarantine_intermediate: true
+
+censored_data_handling:
+  # ">" measurements > 10000 nM are marked inactive
+  handle_greater_than: true
+  # "<" measurements < 1000 nM are marked active
+  handle_less_than: true
+
+duplicate_handling:
+  # If replicate measurements have std_dev / mean ratio > threshold, quarantine
+  max_log_discrepancy: 1.0
+  aggregation_strategy: "geometric_mean"

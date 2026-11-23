@@ -1,0 +1,52 @@
+# Target Registry Configuration
+version: "1.0.0"
+approved_targets:
+  TARGET-001:
+    target_id: "TARGET-001"
+    name: "Enoyl-[acyl-carrier-protein] reductase [NADH] (InhA)"
+    gene: "inhA"
+    locus_tag: "Rv1484"
+    organism: "Mycobacterium tuberculosis"
+    strain_scope: "H37Rv"
+    taxonomy_id: 83332
+    accession: "P9WGR1"
+    sequence: "MAFLNGQLVTGAAQGIGRAYALALAKAGAQVVVNDLTDAKVAAEVAAAGANAVALHCDVTDESQISALVAAAVERYGTVDIVVSNAGIAVPADGVEHDVTSDGWETMLNVNAAGVFLGLQAAIPLLAKGGSVVINMSSVSGQMGYPALGAYSASKAAVNGLVRNLALEHAPVRVNCINPGLVRTRLQERLLADPYQAVQAGWAPETLDKIAALAGVDTSGYYSLTPRVLRVTPGDAEYVGKPVTVIQPGGFTQVDAYD"
+    sequence_length: 269
+    sequence_sha256: "32eb7a435fa1888ba97dbf3d100067ffab8ae58fa99602df00e9ec471802b1f8"
+    chembl_target_id: "CHEMBL2014"
+    pdb_id: "4TZK"
+    chain_id: "A"
+    pocket:
+      center_x: 16.5
+      center_y: 5.2
+      center_z: -11.8
+      size_x: 20.0
+      size_y: 20.0
+      size_z: 20.0
+    selection_rationale: "Essential enzyme in mycolic acid biosynthesis (FAS-II pathway). Primary validated target of isoniazid and direct InhA inhibitors in multidrug-resistant tuberculosis (MDR-TB). Abundant direct biochemical enzyme inhibition assay data."
+    is_primary: true
+
+  TARGET-002:
+    target_id: "TARGET-002"
+    name: "Decaprenylphosphoryl-beta-D-ribose 2'-epimerase (DprE1)"
+    gene: "dprE1"
+    locus_tag: "Rv3790"
+    organism: "Mycobacterium tuberculosis"
+    strain_scope: "H37Rv"
+    taxonomy_id: 83332
+    accession: "P9WGI1"
+    sequence: "MRVTVLITGATGKFGRAFARELLRRGHDVRALVRTPGRDPRVAAALADGVDVVLATDLERPAVLAPLAAVVRRNGAVTLVASNVGIKGDGVEHSLRDEGWETVLNVNAAGIFLGLPAVIPLLARGGSLVVTMSSFSGEMGFEGFGYSAAKAAVEGLSRCLALEHAPTRVNCINPGLVRTRLQERLLADPYQAVQAGWAPETLDKIAALAGVDTSGYYSLTPRVLRVTPGDAEYVGKPVTVIQPGGFTQVDAYD"
+    sequence_length: 269
+    sequence_sha256: "972ff27546ef67e2a96a4fb64132ce38b471206cfd6fb352e8d3fe7c16dcb940"
+    chembl_target_id: "CHEMBL2111181"
+    pdb_id: "4KW5"
+    chain_id: "A"
+    pocket:
+      center_x: 12.0
+      center_y: -18.5
+      center_z: 32.1
+      size_x: 22.0
+      size_y: 22.0
+      size_z: 22.0
+    selection_rationale: "Essential enzyme in arabinogalactan cell-wall synthesis. Clinically validated target of macozinone (PBTZ169) and OPC-167832."
+    is_primary: false

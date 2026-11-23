@@ -1,0 +1,40 @@
+# Molecular and Protein Feature Schemas
+schema_version: "features-v1.0"
+
+molecule_graph:
+  atom_features:
+    atomic_number_list: [1, 5, 6, 7, 8, 9, 14, 15, 16, 17, 34, 35, 53] # standard drug-like elements
+    degree_max: 6
+    formal_charge_list: [-2, -1, 0, 1, 2]
+    hybridization_types: ["SP", "SP2", "SP3", "SP3D", "SP3D2", "OTHER"]
+    include_aromaticity: true
+    include_in_ring: true
+    include_num_hs: true
+    include_chirality: true
+  bond_features:
+    bond_types: ["SINGLE", "DOUBLE", "TRIPLE", "AROMATIC"]
+    include_conjugated: true
+    include_in_ring: true
+    stereo_types: ["STEREONONE", "STEREOANY", "STEREOZ", "STEREOE"]
+  max_atoms: 120
+
+fingerprints:
+  morgan:
+    radius: 2
+    n_bits: 2048
+    use_chirality: true
+  descriptors:
+    - "MolWt"
+    - "MolLogP"
+    - "TPSA"
+    - "NumHDonors"
+    - "NumHAcceptors"
+    - "NumRotatableBonds"
+    - "FractionCSP3"
+    - "RingCount"
+
+protein_esm:
+  model_id: "facebook/esm2_t6_8M_UR50D"
+  embedding_dim: 320
+  pooling: "mean"
+  max_seq_len: 1024

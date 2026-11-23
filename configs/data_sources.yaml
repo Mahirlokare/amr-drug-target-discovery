@@ -1,0 +1,38 @@
+# Data Sources Configuration
+chembl:
+  base_url: "https://www.ebi.ac.uk/chembl/api/data"
+  timeout_seconds: 30
+  max_retries: 3
+  backoff_factor: 1.5
+  page_size: 100
+  cache_dir: "data/raw/chembl_cache"
+
+pubchem:
+  base_url: "https://pubchem.ncbi.nlm.nih.gov/rest/pug"
+  timeout_seconds: 20
+  rate_limit_delay_seconds: 0.2
+  cache_dir: "data/raw/pubchem_cache"
+
+uniprot:
+  base_url: "https://rest.uniprot.org/uniprotkb"
+  timeout_seconds: 20
+  cache_dir: "data/raw/uniprot_cache"
+
+rcsb:
+  base_url: "https://data.rcsb.org/rest/v1/core"
+  files_url: "https://files.rcsb.org/download"
+  cache_dir: "data/external/pdb"
+
+esm:
+  model_name: "facebook/esm2_t6_8M_UR50D"
+  embedding_dim: 320
+  pooling_strategy: "mean"
+  max_sequence_length: 1024
+  cache_dir: "artifacts/embeddings"
+
+vina:
+  binary_path: "vina"
+  exhaustiveness: 8
+  num_modes: 9
+  energy_range: 3.0
+  seed: 42

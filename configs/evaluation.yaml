@@ -1,0 +1,38 @@
+# Validation and Evaluation Configuration
+splits:
+  scaffold_split:
+    train_ratio: 0.70
+    val_ratio: 0.15
+    test_ratio: 0.15
+    seed: 42
+    assert_zero_scaffold_overlap: true
+
+  temporal_split:
+    cutoff_year: 2018
+    enabled: true
+    min_test_samples: 30
+
+metrics:
+  classification:
+    - "AUROC"
+    - "PR-AUC"
+    - "BalancedAccuracy"
+    - "F1_Macro"
+    - "EnrichmentFactor_1pct"
+    - "EnrichmentFactor_5pct"
+    - "BrierScore"
+    - "ExpectedCalibrationError"
+
+confidence_intervals:
+  method: "bootstrap"
+  n_bootstraps: 500
+  confidence_level: 0.95
+
+baselines:
+  - "majority_prevalence"
+  - "morgan_logistic_regression"
+  - "morgan_random_forest"
+  - "morgan_gradient_boosting"
+  - "gnn_molecule_only"
+  - "protein_embedding_only"
+  - "multimodal_gnn_esm2"

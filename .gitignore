@@ -1,0 +1,46 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Environments, credentials & secrets (NEVER COMMIT)
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+id_rsa*
+*.cert
+
+# Virtual Environments
+.venv/
+env/
+venv/
+ENV/
+build/
+dist/
+*.egg-info/
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local database files
+*.db
+*.sqlite3
+data/*.db
+
+# Large raw snapshots and MLflow local tracking
+data/raw/*
+!data/raw/.gitkeep
+data/interim/*
+!data/interim/.gitkeep
+mlruns/
+
+# System / OS
+.DS_Store
+Thumbs.db
+*.swp
+*.bak
