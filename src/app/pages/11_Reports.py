@@ -19,7 +19,7 @@ st.markdown("""
 
 st.title("📑 Scientific Governance & Model / Dataset Cards")
 
-tab1, tab2, tab3 = st.tabs(["Dataset Card", "Model Card", "Validation Protocol & Governance"])
+tab1, tab2, tab3, tab4 = st.tabs(["Dataset Card", "Model Card", "Validation Protocol & Governance", "📥 Export Reports"])
 
 with tab1:
     st.subheader("Dataset Card: M. tuberculosis InhA Bioactivity Benchmark")
@@ -76,3 +76,29 @@ with tab3:
     - Primary reported metrics: AUROC, PR-AUC, Enrichment Factor @ 1% (EF@1%), Brier Score, and Expected Calibration Error (ECE).
     - 95% Confidence intervals derived via 500-iteration bootstrap resampling.
     """)
+
+with tab4:
+    st.subheader("📥 Export Machine-Readable Reports")
+    st.caption("Download standardized provenance artifacts and model evaluation reports:")
+
+    eval_json = Path(_ROOT / "artifacts" / "reports" / "EVAL-INHA-PRIMARY_evaluation.json")
+    if eval_json.exists():
+        with open(eval_json, "r", encoding="utf-8") as f:
+            eval_content = f.read()
+        st.download_button(
+            label="📥 Download Primary Evaluation Report (JSON)",
+            data=eval_content,
+            file_name="EVAL-INHA-PRIMARY_evaluation.json",
+            mime="application/json"
+        )
+
+    dataset_json = Path(_ROOT / "data" / "processed" / "inha_benchmark_v1.json")
+    if dataset_json.exists():
+        with open(dataset_json, "r", encoding="utf-8") as f:
+            ds_content = f.read()
+        st.download_button(
+            label="📥 Download Curated Benchmark Dataset (JSON)",
+            data=ds_content,
+            file_name="inha_curated_benchmark.json",
+            mime="application/json"
+        )

@@ -97,6 +97,13 @@ status_filter = st.sidebar.multiselect(
     default=["ACTIVE", "INACTIVE"]
 )
 
+endpoint_filter = st.sidebar.multiselect(
+    "Biochemical Endpoint Type",
+    options=["IC50", "Ki", "Kd", "MIC", "EC50"],
+    default=["IC50"]
+)
+st.sidebar.caption("Endpoints are strictly segregated (Section 5.3): enzyme biochemical IC50 is never combined with whole-cell MIC without conversion.")
+
 min_year, max_year = 2005, 2024
 year_range = st.sidebar.slider("Publication Year", min_year, max_year, (2005, 2024))
 
@@ -106,7 +113,7 @@ for r in records:
     cid = r["compound_id"]
     comp = cid_to_comp.get(cid, {})
     yr = r.get("year") or 2015
-    if r.get("label_status") in status_filter and (year_range[0] <= yr <= year_range[1]):
+    if r.get("label_status") in status_filter and (year_range[0] <= yr <= year_range[1]) and (r.get("endpoint", "IC50") in endpoint_filter):
         table_rows.append({
             "Compound ID": cid,
             "Common Name": comp.get("source_ids", ["-"])[1] if len(comp.get("source_ids", [])) > 1 else cid,
