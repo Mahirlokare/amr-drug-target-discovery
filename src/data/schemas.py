@@ -165,5 +165,21 @@ class ADMETRun:
     synthetic_accessibility: float
     warnings: List[str] = field(default_factory=list)
 
+    @property
+    def molecular_weight(self) -> float:
+        return self.mw
+
+    @property
+    def h_bond_donors(self) -> int:
+        return self.hbd
+
+    @property
+    def h_bond_acceptors(self) -> int:
+        return self.hba
+
+    @property
+    def decision_status(self) -> str:
+        return "PASS" if self.lipinski_pass and self.pains_alert_count == 0 else "FLAGGED"
+
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)

@@ -84,7 +84,6 @@ if st.button("🚀 Run Multimodal Scoring & Triage", type="primary"):
             models = [MultimodalDTIFusionModel()]
 
         calibrator = ProbabilityCalibrator()
-        calibrator.is_fitted = True
 
         # Reference training SMILES for applicability domain
         train_smi = ["O=C(NN)c1ccncc1", "Oc1ccc(Cl)cc1Oc2ccc(Cl)cc2Cl", "CCc1cc(C(N)=S)ccn1"]

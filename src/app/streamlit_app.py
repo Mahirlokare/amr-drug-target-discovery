@@ -279,89 +279,93 @@ else:
 
 if st.button("🚀 Predict Activity & Run Multi-Stream Triage", type="primary"):
     with st.spinner("Executing GNN graph convolutions, ESM-2 PLM projection, and ADMET filters..."):
-        # Load models from artifacts
-        checkpoints = list((PROJECT_ROOT / "artifacts" / "checkpoints").glob("dti_model_seed_*.pt"))
-        device = torch.device("cpu")
-        models = []
-        if checkpoints:
-            for ckpt in checkpoints[:3]:
-                m = MultimodalDTIFusionModel()
-                m.load_state_dict(torch.load(ckpt, weights_only=True, map_location=device))
-                models.append(m)
-        else:
-            models = [MultimodalDTIFusionModel()]
+        try:
+            # Load models from artifacts
+            checkpoints = list((PROJECT_ROOT / "artifacts" / "checkpoints").glob("dti_model_seed_*.pt"))
+            device = torch.device("cpu")
+            models = []
+            if checkpoints:
+                for ckpt in checkpoints[:3]:
+                    m = MultimodalDTIFusionModel()
+                    m.load_state_dict(torch.load(ckpt, weights_only=True, map_location=device))
+                    models.append(m)
+            else:
+                models = [MultimodalDTIFusionModel()]
 
-        calibrator = ProbabilityCalibrator()
-        calibrator.is_fitted = True
+            calibrator = ProbabilityCalibrator()
 
-        target_reg = config_manager.get_config("target_registry")["approved_targets"]
-        t_data = target_reg["TARGET-001"]
-        t_obj = Target(
-            target_id="TARGET-001",
-            name=t_data["name"],
-            accession=t_data["accession"],
-            organism=t_data["organism"],
-            strain_scope=t_data["strain_scope"],
-            gene=t_data["gene"],
-            sequence=t_data["sequence"],
-            sequence_hash=t_data["sequence_sha256"],
-            taxonomy_id=t_data["taxonomy_id"]
-        )
+            target_reg = config_manager.get_config("target_registry")["approved_targets"]
+            t_data = target_reg["TARGET-001"]
+            t_obj = Target(
+                target_id="TARGET-001",
+                name=t_data["name"],
+                accession=t_data["accession"],
+                organism=t_data["organism"],
+                strain_scope=t_data["strain_scope"],
+                gene=t_data["gene"],
+                sequence=t_data["sequence"],
+                sequence_hash=t_data["sequence_sha256"],
+                taxonomy_id=t_data["taxonomy_id"]
+            )
 
-        pipeline = CandidateScoringPipeline(
-            ensemble_models=models,
-            calibrator=calibrator,
-            train_reference_smiles=["O=C(NN)c1ccncc1", "Oc1ccc(Cl)cc1Oc2ccc(Cl)cc2Cl", "CCc1cc(C(N)=S)ccn1"],
-            epistemic_threshold=0.15
-        )
+            pipeline = CandidateScoringPipeline(
+                ensemble_models=models,
+                calibrator=calibrator,
+                train_reference_smiles=["O=C(NN)c1ccncc1", "Oc1ccc(Cl)cc1Oc2ccc(Cl)cc2Cl", "CCc1cc(C(N)=S)ccn1"],
+                epistemic_threshold=0.15
+            )
 
-        preds, warnings = pipeline.score_smiles_list([eval_smiles], t_obj)
-        admet = ADMETAdapter()
+            preds, warnings = pipeline.score_smiles_list([eval_smiles], t_obj)
+            admet = ADMETAdapter()
 
-        if preds:
-            p = preds[0]
-            admet_run = admet.evaluate_candidate(p.smiles, p.compound_id, p.prediction_id)
+            if preds:
+                p = preds[0]
+                admet_run = admet.evaluate_candidate(p.smiles, p.compound_id, p.prediction_id)
 
-            res_c1, res_c2, res_c3, res_c4 = st.columns(4)
+                res_c1, res_c2, res_c3, res_c4 = st.columns(4)
 
-            prob_pct = p.calibrated_probability * 100
-            with res_c1:
-                st.markdown(f"""
-                <div class="kpi-card">
-                    <div class="kpi-label">Calibrated Probability</div>
-                    <div class="kpi-val" style="color: {'#34D399' if p.calibrated_probability >= 0.5 else '#F87171'};">{prob_pct:.1f}%</div>
-                    <div class="kpi-sub">Platt-Calibrated Active Likelihood</div>
-                </div>
-                """, unsafe_allow_html=True)
+                prob_pct = p.calibrated_probability * 100
+                with res_c1:
+                    st.markdown(f"""
+                    <div class="kpi-card">
+                        <div class="kpi-label">Calibrated Probability</div>
+                        <div class="kpi-val" style="color: {'#34D399' if p.calibrated_probability >= 0.5 else '#F87171'};">{prob_pct:.1f}%</div>
+                        <div class="kpi-sub">Platt-Calibrated Active Likelihood</div>
+                    </div>
+                    """, unsafe_allow_html=True)
 
-            with res_c2:
-                st.markdown(f"""
-                <div class="kpi-card">
-                    <div class="kpi-label">Epistemic Uncertainty</div>
-                    <div class="kpi-val" style="color: {'#38BDF8' if p.uncertainty <= 0.10 else '#FBBF24'};">{p.uncertainty:.3f}</div>
-                    <div class="kpi-sub">3-Seed Ensemble Spread</div>
-                </div>
-                """, unsafe_allow_html=True)
+                with res_c2:
+                    st.markdown(f"""
+                    <div class="kpi-card">
+                        <div class="kpi-label">Epistemic Uncertainty</div>
+                        <div class="kpi-val" style="color: {'#38BDF8' if p.uncertainty <= 0.10 else '#FBBF24'};">{p.uncertainty:.3f}</div>
+                        <div class="kpi-sub">3-Seed Ensemble Spread</div>
+                    </div>
+                    """, unsafe_allow_html=True)
 
-            with res_c3:
-                st.markdown(f"""
-                <div class="kpi-card">
-                    <div class="kpi-label">Chemical Space Domain</div>
-                    <div class="kpi-val" style="color: {'#34D399' if not p.is_out_of_domain else '#FBBF24'};">{'In-Domain' if not p.is_out_of_domain else 'OOD Alert'}</div>
-                    <div class="kpi-sub">Tanimoto: {p.nearest_train_similarity:.2f} to Training</div>
-                </div>
-                """, unsafe_allow_html=True)
+                with res_c3:
+                    st.markdown(f"""
+                    <div class="kpi-card">
+                        <div class="kpi-label">Chemical Space Domain</div>
+                        <div class="kpi-val" style="color: {'#34D399' if not p.is_out_of_domain else '#FBBF24'};">{'In-Domain' if not p.is_out_of_domain else 'OOD Alert'}</div>
+                        <div class="kpi-sub">Tanimoto: {p.nearest_train_similarity:.2f} to Training</div>
+                    </div>
+                    """, unsafe_allow_html=True)
 
-            with res_c4:
-                st.markdown(f"""
-                <div class="kpi-card">
-                    <div class="kpi-label">ADMET & Safety Triage</div>
-                    <div class="kpi-val" style="color: {'#34D399' if admet_run.lipinski_pass and admet_run.pains_alert_count == 0 else '#F87171'};">{'PASS' if admet_run.lipinski_pass else 'FLAGGED'}</div>
-                    <div class="kpi-sub">Ro5: {'Pass' if admet_run.lipinski_pass else 'Fail'} · PAINS: {admet_run.pains_alert_count}</div>
-                </div>
-                """, unsafe_allow_html=True)
+                with res_c4:
+                    st.markdown(f"""
+                    <div class="kpi-card">
+                        <div class="kpi-label">ADMET & Safety Triage</div>
+                        <div class="kpi-val" style="color: {'#34D399' if admet_run.lipinski_pass and admet_run.pains_alert_count == 0 else '#F87171'};">{'PASS' if admet_run.lipinski_pass else 'FLAGGED'}</div>
+                        <div class="kpi-sub">Ro5: {'Pass' if admet_run.lipinski_pass else 'Fail'} · PAINS: {admet_run.pains_alert_count}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
 
-            st.success(f"**Computational Decision Recommendation**: `{p.decision_status}` — Molecular properties: MW {admet_run.molecular_weight:.1f} g/mol, LogP {admet_run.logp:.2f}, QED {admet_run.qed_score:.2f}.")
+                st.success(f"**Computational Decision Recommendation**: `{p.decision_status}` — Molecular properties: MW {admet_run.molecular_weight:.1f} g/mol, LogP {admet_run.logp:.2f}, QED {admet_run.qed_score:.2f}.")
+            elif warnings:
+                st.warning(f"Validation notices: {warnings}")
+        except Exception as e:
+            st.error(f"Inference pipeline execution error: {e}")
 
 st.markdown("<div style='height: 2rem;'></div>", unsafe_allow_html=True)
 

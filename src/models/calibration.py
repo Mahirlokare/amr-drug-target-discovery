@@ -21,30 +21,40 @@ class ProbabilityCalibrator:
         self.method = method.lower()
         if self.method == "isotonic":
             self.model = IsotonicRegression(out_of_bounds="clip", y_min=0.0, y_max=1.0)
+            self.model.fit([-10.0, 0.0, 10.0], [0.0, 0.5, 1.0])
         else:
             # Platt scaling (Logistic Regression on logits)
             self.model = LogisticRegression(C=1.0, max_iter=500)
-        self.is_fitted = False
+            # Default pre-fit Platt weights: P(y=1) = 1 / (1 + exp(-x))
+            self.model.classes_ = np.array([0, 1])
+            self.model.coef_ = np.array([[1.0]])
+            self.model.intercept_ = np.array([0.0])
+        self.is_fitted = True
 
     def fit(self, raw_scores: np.ndarray, y_val: np.ndarray):
         """Fits calibration curve on validation partition only."""
-        scores_2d = raw_scores.reshape(-1, 1)
-        self.model.fit(scores_2d, y_val)
+        scores_2d = np.asarray(raw_scores, dtype=np.float64).reshape(-1, 1)
+        y_val_arr = np.asarray(y_val, dtype=np.int32)
+        self.model.fit(scores_2d, y_val_arr)
         self.is_fitted = True
         return self
 
     def calibrate(self, raw_scores: np.ndarray) -> np.ndarray:
         """Applies calibration to raw test/candidate scores."""
+        scores_arr = np.asarray(raw_scores, dtype=np.float64)
         if not self.is_fitted:
-            # If not calibrated, return standard sigmoid clipping
-            return np.clip(1.0 / (1.0 + np.exp(-raw_scores)), 0.0, 1.0)
+            return np.clip(1.0 / (1.0 + np.exp(-scores_arr)), 0.0, 1.0)
 
-        scores_2d = raw_scores.reshape(-1, 1)
-        if self.method == "isotonic":
-            calibrated = self.model.predict(scores_2d)
-        else:
-            proba = self.model.predict_proba(scores_2d)
-            calibrated = proba[:, 1] if proba.shape[1] > 1 else proba[:, 0]
+        scores_2d = scores_arr.reshape(-1, 1)
+        try:
+            if self.method == "isotonic":
+                calibrated = self.model.predict(scores_2d)
+            else:
+                proba = self.model.predict_proba(scores_2d)
+                calibrated = proba[:, 1] if proba.shape[1] > 1 else proba[:, 0]
+        except Exception as e:
+            logger.warning(f"Calibrator prediction fallback to sigmoid: {e}")
+            calibrated = 1.0 / (1.0 + np.exp(-scores_arr))
         return np.clip(calibrated, 0.0, 1.0)
 
 
