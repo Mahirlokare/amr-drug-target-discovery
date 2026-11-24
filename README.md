@@ -265,9 +265,10 @@ amr-drug-discovery/
 │           ├── 07_Candidate_Discovery.py # Candidate Discovery: High-throughput screening & triage
 │           ├── 08_Docking_and_ADMET.py # Docking & ADMET: AutoDock Vina & safety screening
 │           └── 09_Reports.py          # Reports: Model Cards, Dataset Cards & prediction audit logs
-├── tests/                             # Comprehensive 13-category automated test suite (58 tests)
+├── tests/                             # Comprehensive 14-category automated test suite (62 tests)
 │   ├── conftest.py                    # Pytest environment & path configuration
 │   ├── unit/                          # Unit tests for RDKit, graphs, calibration, DB CRUD
+│   ├── auth/                          # Cryptographic hashing, verification, sign-in & registration
 │   ├── integration/                   # Data build -> split -> feature extraction chain
 │   ├── leakage/                       # Bemis-Murcko zero-leakage mathematical assertions
 │   ├── regression/                    # Baseline performance benchmarks & stability

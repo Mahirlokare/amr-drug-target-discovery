@@ -215,6 +215,21 @@ class DatabaseManager:
                 );
                 """)
 
+                cursor.execute("""
+                CREATE TABLE IF NOT EXISTS users (
+                    user_id TEXT PRIMARY KEY,
+                    username TEXT UNIQUE NOT NULL,
+                    email TEXT UNIQUE NOT NULL,
+                    password_hash TEXT NOT NULL,
+                    salt TEXT NOT NULL,
+                    full_name TEXT NOT NULL,
+                    role TEXT NOT NULL,
+                    institution TEXT,
+                    created_at TEXT NOT NULL,
+                    last_login TEXT
+                );
+                """)
+
                 # Create indices for query performance
                 indices = [
                     "CREATE INDEX IF NOT EXISTS idx_compounds_inchikey ON compounds(inchikey);",
@@ -224,7 +239,9 @@ class DatabaseManager:
                     "CREATE INDEX IF NOT EXISTS idx_predictions_target ON predictions(target_id);",
                     "CREATE INDEX IF NOT EXISTS idx_predictions_prob ON predictions(calibrated_prob);",
                     "CREATE INDEX IF NOT EXISTS idx_docking_target ON docking_runs(target_id);",
-                    "CREATE INDEX IF NOT EXISTS idx_admet_compound ON admet_runs(compound_id);"
+                    "CREATE INDEX IF NOT EXISTS idx_admet_compound ON admet_runs(compound_id);",
+                    "CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);",
+                    "CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);"
                 ]
                 for idx_stmt in indices:
                     cursor.execute(idx_stmt)
@@ -251,6 +268,7 @@ class DatabaseManager:
                 "predictions",
                 "docking_runs",
                 "admet_runs",
+                "users",
             ]:
                 cursor.execute(f"SELECT COUNT(*) FROM {table};")
                 row = cursor.fetchone()
@@ -407,6 +425,75 @@ class DatabaseManager:
                     "created_at": now,
                 }
                 self._upsert(cursor, "admet_runs", "admet_id", record)
+        finally:
+            conn.close()
+
+
+    # --- User CRUD ---
+    def save_user(self, user_data: Dict[str, Any]) -> str:
+        conn = self.get_connection()
+        try:
+            with conn:
+                cursor = conn.cursor()
+                now = datetime.now(timezone.utc).isoformat()
+                record = {
+                    "user_id": user_data["user_id"],
+                    "username": user_data["username"].strip().lower(),
+                    "email": user_data["email"].strip().lower(),
+                    "password_hash": user_data["password_hash"],
+                    "salt": user_data["salt"],
+                    "full_name": user_data.get("full_name", user_data["username"]),
+                    "role": user_data.get("role", "researcher"),
+                    "institution": user_data.get("institution", "Academic Research"),
+                    "created_at": user_data.get("created_at", now),
+                    "last_login": user_data.get("last_login")
+                }
+                self._upsert(cursor, "users", "user_id", record)
+                return record["user_id"]
+        finally:
+            conn.close()
+
+    def get_user_by_username_or_email(self, identifier: str) -> Optional[Dict[str, Any]]:
+        conn = self.get_connection()
+        try:
+            cursor = conn.cursor()
+            clean_id = identifier.strip().lower()
+            sql = "SELECT * FROM users WHERE username = ? OR email = ? LIMIT 1;"
+            self._query(cursor, sql, (clean_id, clean_id))
+            row = cursor.fetchone()
+            return dict(row) if row else None
+        finally:
+            conn.close()
+
+    def get_user_by_id(self, user_id: str) -> Optional[Dict[str, Any]]:
+        conn = self.get_connection()
+        try:
+            cursor = conn.cursor()
+            sql = "SELECT * FROM users WHERE user_id = ? LIMIT 1;"
+            self._query(cursor, sql, (user_id,))
+            row = cursor.fetchone()
+            return dict(row) if row else None
+        finally:
+            conn.close()
+
+    def update_user_last_login(self, user_id: str) -> None:
+        conn = self.get_connection()
+        try:
+            with conn:
+                cursor = conn.cursor()
+                now = datetime.now(timezone.utc).isoformat()
+                sql = "UPDATE users SET last_login = ? WHERE user_id = ?;"
+                self._query(cursor, sql, (now, user_id))
+        finally:
+            conn.close()
+
+    def list_users(self) -> List[Dict[str, Any]]:
+        conn = self.get_connection()
+        try:
+            cursor = conn.cursor()
+            self._query(cursor, "SELECT user_id, username, email, full_name, role, institution, created_at, last_login FROM users ORDER BY created_at ASC;")
+            rows = cursor.fetchall()
+            return [dict(r) for r in rows]
         finally:
             conn.close()
 

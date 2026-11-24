@@ -232,7 +232,15 @@ target_registry = load_target_registry()
 # ---------------------------------------------------------
 # TOP BRAND NAVIGATION BAR (Left-Anchored Brand Name)
 # ---------------------------------------------------------
-st.markdown("""
+from src.app.auth_ui import get_current_user
+curr_user = get_current_user()
+auth_badge = (
+    f'<span class="badge-pill" style="border-color: #38BDF8; color: #38BDF8; background: rgba(56, 189, 248, 0.1);">👤 {curr_user.get("full_name", curr_user["username"])}</span>'
+    if curr_user
+    else '<span class="badge-pill" style="border-color: #64748B; color: #94A3B8;">Open Guest Mode</span>'
+)
+
+st.markdown(f"""
 <div class="brand-bar">
     <div class="brand-left">
         <div class="brand-icon">🧬</div>
@@ -243,6 +251,7 @@ st.markdown("""
     </div>
     <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
         <span class="badge-pill badge-live"><span class="dot-pulse"></span> Production Online</span>
+        {auth_badge}
         <span class="badge-pill">5 AMR Pathogen Targets</span>
         <span class="badge-pill">Bemis-Murcko 0% Leakage</span>
         <span class="badge-pill">PyG GNN + ESM-2</span>
@@ -286,6 +295,10 @@ with st.sidebar:
         st.success(f"Storage: **Connected** ({db_health.get('engine')})")
     else:
         st.warning(f"Storage: {db_health.get('error', 'Initializing')}")
+
+    # Researcher Authentication & Session State
+    from src.app.auth_ui import render_auth_sidebar, get_current_user
+    render_auth_sidebar()
 
     st.markdown("### 📂 Research Pages")
     st.page_link("pages/01_Target_Explorer.py", label="Target Explorer", icon="🎯")
