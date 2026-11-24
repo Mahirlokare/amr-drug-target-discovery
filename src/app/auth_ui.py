@@ -47,39 +47,53 @@ def render_auth_sidebar() -> None:
             with tab_login:
                 st.caption("Sign in to save private screening libraries and audit history:")
 
-                # Demo account quick selection
-                st.markdown("<div style='font-size: 0.75rem; color: #94A3B8; margin-bottom: 4px;'><b>Quick Fill Demo Account:</b></div>", unsafe_allow_html=True)
-                d_c1, d_c2, d_c3 = st.columns(3)
-                with d_c1:
-                    if st.button("Lead PI", key="demo_admin", use_container_width=True):
-                        st.session_state["login_user_input"] = "admin"
-                        st.session_state["login_pwd_input"] = "adminpassword123"
-                with d_c2:
-                    if st.button("Scientist", key="demo_scientist", use_container_width=True):
-                        st.session_state["login_user_input"] = "scientist"
-                        st.session_state["login_pwd_input"] = "amr2026pass"
-                with d_c3:
-                    if st.button("Reviewer", key="demo_reviewer", use_container_width=True):
-                        st.session_state["login_user_input"] = "reviewer"
-                        st.session_state["login_pwd_input"] = "reviewamr2026"
+                # 1-Click Fast Demo Login
+                if st.button("⚡ 1-Click Demo Login (Lead PI)", key="quick_admin_login", type="primary", use_container_width=True):
+                    ok, msg, user_obj = auth_service.authenticate("admin", "adminpassword123")
+                    if ok and user_obj:
+                        st.session_state["is_authenticated"] = True
+                        st.session_state["authenticated_user"] = user_obj
+                        st.rerun()
+
+                st.markdown("<div style='text-align: center; font-size: 0.75rem; color: #64748B; margin: 6px 0;'>— OR MANUAL LOGIN —</div>", unsafe_allow_html=True)
+
+                demo_pick = st.selectbox(
+                    "Autofill Demo Credentials:",
+                    options=["-- Custom Credentials --", "Lead PI (admin)", "Scientist (scientist)", "Reviewer (reviewer)"],
+                    key="demo_pick_select"
+                )
+
+                default_u = ""
+                default_p = ""
+                if demo_pick == "Lead PI (admin)":
+                    default_u = "admin"
+                    default_p = "adminpassword123"
+                elif demo_pick == "Scientist (scientist)":
+                    default_u = "scientist"
+                    default_p = "amr2026pass"
+                elif demo_pick == "Reviewer (reviewer)":
+                    default_u = "reviewer"
+                    default_p = "reviewamr2026"
 
                 user_input = st.text_input(
                     "Username or Email",
-                    value=st.session_state.get("login_user_input", ""),
+                    value=default_u,
                     key="login_user_field"
                 )
                 pwd_input = st.text_input(
                     "Password",
-                    value=st.session_state.get("login_pwd_input", ""),
+                    value=default_p,
                     type="password",
                     key="login_pwd_field"
                 )
 
-                if st.button("Sign In to Platform", key="login_submit_btn", type="primary", use_container_width=True):
-                    if not user_input or not pwd_input:
+                if st.button("Sign In to Platform", key="login_submit_btn", use_container_width=True):
+                    final_user = user_input.strip() or default_u
+                    final_pwd = pwd_input.strip() or default_p
+                    if not final_user or not final_pwd:
                         st.error("Please enter both username and password.")
                     else:
-                        ok, msg, user_obj = auth_service.authenticate(user_input, pwd_input)
+                        ok, msg, user_obj = auth_service.authenticate(final_user, final_pwd)
                         if ok and user_obj:
                             st.session_state["is_authenticated"] = True
                             st.session_state["authenticated_user"] = user_obj
