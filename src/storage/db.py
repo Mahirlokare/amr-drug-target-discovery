@@ -55,7 +55,7 @@ class DatabaseManager:
             try:
                 import psycopg2
                 import psycopg2.extras
-                return psycopg2.connect(self.postgres_url)
+                return psycopg2.connect(self.postgres_url, cursor_factory=psycopg2.extras.RealDictCursor)
             except Exception as e:
                 logger.warning(
                     f"PostgreSQL connection failed ({e}). Falling back to local SQLite."
@@ -67,6 +67,32 @@ class DatabaseManager:
                 return self._get_sqlite_conn()
         else:
             return self._get_sqlite_conn()
+
+    @staticmethod
+    def _row_to_dict(cursor, row) -> Optional[Dict[str, Any]]:
+        """Safely converts a database row from SQLite or PostgreSQL into a standard dict."""
+        if not row:
+            return None
+        if isinstance(row, dict):
+            return dict(row)
+        if hasattr(row, "keys"):
+            return dict(row)
+        if hasattr(cursor, "description") and cursor.description:
+            cols = [d[0] for d in cursor.description]
+            return dict(zip(cols, row))
+        return dict(row)
+
+    @staticmethod
+    def _rows_to_dicts(cursor, rows) -> List[Dict[str, Any]]:
+        """Safely converts a list of database rows into a list of dicts."""
+        if not rows:
+            return []
+        if isinstance(rows[0], dict) or hasattr(rows[0], "keys"):
+            return [dict(r) for r in rows]
+        if hasattr(cursor, "description") and cursor.description:
+            cols = [d[0] for d in cursor.description]
+            return [dict(zip(cols, r)) for r in rows]
+        return [dict(r) for r in rows]
 
     def _get_sqlite_conn(self) -> sqlite3.Connection:
         assert self.db_path is not None
@@ -318,7 +344,7 @@ class DatabaseManager:
             cursor = conn.cursor()
             self._query(cursor, "SELECT * FROM targets ORDER BY target_id ASC;")
             rows = cursor.fetchall()
-            return [dict(r) for r in rows]
+            return self._rows_to_dicts(cursor, rows)
         finally:
             conn.close()
 
@@ -365,7 +391,7 @@ class DatabaseManager:
                     (limit,),
                 )
             rows = cursor.fetchall()
-            return [dict(r) for r in rows]
+            return self._rows_to_dicts(cursor, rows)
         finally:
             conn.close()
 
@@ -397,7 +423,7 @@ class DatabaseManager:
             cursor = conn.cursor()
             self._query(cursor, "SELECT * FROM docking_runs ORDER BY binding_affinity ASC;")
             rows = cursor.fetchall()
-            return [dict(r) for r in rows]
+            return self._rows_to_dicts(cursor, rows)
         finally:
             conn.close()
 
@@ -461,7 +487,7 @@ class DatabaseManager:
             sql = "SELECT * FROM users WHERE username = ? OR email = ? LIMIT 1;"
             self._query(cursor, sql, (clean_id, clean_id))
             row = cursor.fetchone()
-            return dict(row) if row else None
+            return self._row_to_dict(cursor, row)
         finally:
             conn.close()
 
@@ -472,7 +498,7 @@ class DatabaseManager:
             sql = "SELECT * FROM users WHERE user_id = ? LIMIT 1;"
             self._query(cursor, sql, (user_id,))
             row = cursor.fetchone()
-            return dict(row) if row else None
+            return self._row_to_dict(cursor, row)
         finally:
             conn.close()
 
@@ -493,7 +519,7 @@ class DatabaseManager:
             cursor = conn.cursor()
             self._query(cursor, "SELECT user_id, username, email, full_name, role, institution, created_at, last_login FROM users ORDER BY created_at ASC;")
             rows = cursor.fetchall()
-            return [dict(r) for r in rows]
+            return self._rows_to_dicts(cursor, rows)
         finally:
             conn.close()
 
